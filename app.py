@@ -352,7 +352,6 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
     
     display_df = df.head(limit) if limit else df
     
-    # Perfectly spaced table columns layout
     header_cols = st.columns([1.5, 3.2, 1.8, 1.4, 0.4, 1.4])
     with header_cols[0]:
         st.markdown("<p style='color: #c084fc; font-weight: 800; font-size: 14px;'>Product Code</p>", unsafe_allow_html=True)
@@ -389,7 +388,7 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
                 st.session_state.selected_product_code = p_code
                 st.rerun()
         with row_cols[4]:
-            st.markdown("", unsafe_allow_html=True) # Proper gap between buttons
+            st.markdown("", unsafe_allow_html=True)
         with row_cols[5]:
             pdf_path = pdf_file_map.get(p_code.upper())
             if pdf_path and os.path.exists(pdf_path):
@@ -398,34 +397,22 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
             else:
                 st.button("❌ N/A", key=f"{prefix}_no_pdf_{idx}_{p_code}", disabled=True)
 
-# --- ISOLATED & EXACT SINGLE VALUE AI SEARCH AGENT ---
+# --- SMART & PRECISE AI SEARCH AGENT ---
 def ask_product_pdf_agent(raw_text, question):
     if not question:
         return "Please enter a valid question."
     
     q_lower = question.lower()
-    stop_words = {'does', 'do', 'contain', 'have', 'is', 'in', 'the', 'a', 'an', 'and', 'to', 'our', 'with', 'or', 'its', 'this', 'product', 'what', 'whats', 'quantity', 'value', 'of'}
-    keywords = [kw for kw in q_lower.split() if kw not in stop_words and len(kw) > 1]
+    lines = raw_text.split('\n')
     
-    if not keywords:
-        keywords = [q_lower]
-        
-    segments = []
-    for line in raw_text.split('\n'):
-        parts = re.split(r'[•|,;]', line)
-        for p in parts:
-            if p.strip():
-                segments.append(p.strip())
-                
-    exact_matches = []
-    for seg in segments:
-        seg_lower = seg.lower()
-        if any(kw in seg_lower for kw in keywords):
-            exact_matches.append(seg.strip())
+    matching_lines = []
+    for line in lines:
+        line_lower = line.lower()
+        if any(term in line_lower for term in q_lower.split() if len(term) > 2):
+            matching_lines.append(line.strip())
             
-    if exact_matches:
-        unique_match = exact_matches[0]
-        return f"• {unique_match}"
+    if matching_lines:
+        return f"• {matching_lines[0]}"
         
     return f"🤖 No specific information found for '{question}' in this specification document."
 
