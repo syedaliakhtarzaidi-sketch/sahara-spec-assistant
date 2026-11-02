@@ -303,7 +303,6 @@ st.markdown("<br>", unsafe_allow_html=True)
 st.markdown('<div class="category-box">', unsafe_allow_html=True)
 st.markdown("<h3 style='margin-top: 0; margin-bottom: 20px; color: #ffffff; font-size: 18px; font-weight: 800;'>🗂️ Browse by Major Category</h3>", unsafe_allow_html=True)
 
-# Perfectly Aligned Grid Using 4 Columns Uniformly
 cat_r1_c1, cat_r1_c2, cat_r1_c3, cat_r1_c4 = st.columns(4)
 with cat_r1_c1:
     if st.button("🌴 Dates", key="cat_dates_btn"):
@@ -398,7 +397,7 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
             else:
                 st.button("❌ N/A", key=f"{prefix}_no_pdf_{idx}_{p_code}", disabled=True)
 
-# --- 100% PRECISE & ROBUST PDF AI SEARCH AGENT ---
+# --- ULTRA SMART & FLEXIBLE AI SEARCH AGENT ---
 def ask_product_pdf_agent(raw_text, question):
     if not question:
         return "Please enter a valid question."
@@ -411,18 +410,13 @@ def ask_product_pdf_agent(raw_text, question):
         keywords = [q_lower]
         
     lines = raw_text.split('\n')
-    best_match = None
     
+    # Direct keyword matching on individual lines for precise answers
     for line in lines:
         line_lower = line.lower()
-        # Ensure that ALL core keywords from the query exist in the matching line
-        if all(kw in line_lower for kw in keywords):
-            best_match = line.strip()
-            break
+        if any(kw in line_lower for kw in keywords):
+            return f"• {line.strip()}"
             
-    if best_match:
-        return f"• {best_match}"
-        
     return f"🤖 No specific information found for '{question}' in this specification document."
 
 def render_product_intelligence_card(p_data):
