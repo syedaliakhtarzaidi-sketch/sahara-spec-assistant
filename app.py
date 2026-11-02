@@ -520,8 +520,8 @@ def render_product_intelligence_card(p_data):
         <div style="max-height: 600px; overflow-y: auto;">
     """, unsafe_allow_html=True)
     
-    # FIXED: Added unsafe_allow_html=True so tables render cleanly instead of raw code
-    st.markdown(formatted_text, unsafe_allow_html=True)
+    # FIXED: Using st.html() to render raw HTML strings cleanly without markdown code-box wrapping
+    st.html(formatted_text)
     
     st.markdown("""
         </div>
