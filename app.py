@@ -146,13 +146,14 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- SMART FORMATTED TABLE CONVERSION & FILTERING ---
+# --- SMART FORMATTED PDF TABLE LAYOUT ---
 def format_pdf_to_bullets(raw_text):
     if not raw_text:
         return "<p style='color: #94a3b8;'>No text available.</p>"
     try:
         lines = raw_text.split('\n')
-        table_rows = []
+        rows_html = ""
+        in_allergen_section = False
         
         exclude_keywords = [
             "Nazia Shamim", "on behalf of SUFL", "on behalf of Customer", 
@@ -168,25 +169,57 @@ def format_pdf_to_bullets(raw_text):
             if any(exc.lower() in stripped.lower() for exc in exclude_keywords) and len(stripped) < 40:
                 continue
                 
+            if "Allergen Table" in stripped or "2. Allergen" in stripped:
+                in_allergen_section = True
+                rows_html += f"<tr><td colspan='2' style='background: #80B813; color: #000; font-weight: 900; padding: 12px 16px; font-size: 15px;'>2. Allergen Table</td></tr>"
+                continue
+            
             if "No No No" in line:
                 line = line.replace("No No No", " [Contains: No | Processed on Equipment: No | Handled on Site: No]")
-            
+
             if ":" in stripped:
                 parts = stripped.split(":", 1)
                 key = parts[0].strip()
                 val = parts[1].strip() if len(parts) > 1 else ""
-                table_rows.append(f"<tr><td style='padding: 12px 16px; border-bottom: 1px solid rgba(139,92,246,0.25); color: #38bdf8; font-weight: 700; width: 38%; vertical-align: top;'>{key}</td><td style='padding: 12px 16px; border-bottom: 1px solid rgba(139,92,246,0.25); color: #f8fafc; font-weight: 500; vertical-align: top;'>{val}</td></tr>")
-            else:
-                table_rows.append(f"<tr><td colspan='2' style='padding: 12px 16px; border-bottom: 1px solid rgba(139,92,246,0.25); color: #c084fc; font-weight: 800; background: rgba(139,92,246,0.08); text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px;'>{stripped}</td></tr>")
                 
-        table_html = f"""
-        <table style='width: 100%; border-collapse: collapse; background: rgba(15, 23, 42, 0.98); border-radius: 14px; overflow: hidden; border: 1px solid rgba(139,92,246,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.5);'>
-            <tbody>
-                {"".join(table_rows)}
-            </tbody>
-        </table>
+                if not in_allergen_section:
+                    rows_html += f"""
+                    <tr>
+                        <td style='padding: 12px 16px; border: 1px solid rgba(128, 184, 19, 0.3); color: #38bdf8; font-weight: 700; width: 38%; background: rgba(15,23,42,0.95);'>{key}</td>
+                        <td style='padding: 12px 16px; border: 1px solid rgba(128, 184, 19, 0.3); color: #f8fafc; font-weight: 500; background: rgba(15,23,42,0.95);'>{val}</td>
+                    </tr>
+                    """
+            else:
+                if not in_allergen_section and len(stripped) > 3:
+                    rows_html += f"<tr><td colspan='2' style='padding: 12px 16px; border: 1px solid rgba(128, 184, 19, 0.3); color: #c084fc; font-weight: 800; background: rgba(128,184,19,0.1);'>{stripped}</td></tr>"
+
+        pdf_layout = f"""
+        <div style='background: #090d16; border: 2px solid #80B813; border-radius: 18px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.6);'>
+            <!-- Header Box similar to PDF -->
+            <div style='display: flex; border: 2px solid #80B813; border-radius: 12px; overflow: hidden; margin-bottom: 25px;'>
+                <div style='background: #ffffff; padding: 15px; display: flex; align-items: center; justify-content: center; width: 25%;'>
+                    <span style='color: #000; font-weight: 900; font-size: 18px;'>Sahara <span style='font-size: 10px;'>UK Foods</span></span>
+                </div>
+                <div style='background: #dcfce7; color: #166534; padding: 15px 20px; font-weight: 800; font-size: 18px; width: 75%; display: flex; align-items: center;'>
+                    Product Specification Document Viewer
+                </div>
+            </div>
+            
+            <!-- Main Info Table -->
+            <table style='width: 100%; border-collapse: collapse;'>
+                <thead>
+                    <tr style='background: #80B813; color: #000;'>
+                        <th style='padding: 12px 16px; text-align: left; border: 1px solid #65a30d; width: 38%; font-weight: 900;'>Item</th>
+                        <th style='padding: 12px 16px; text-align: left; border: 1px solid #65a30d; font-weight: 900;'>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {rows_html}
+                </tbody>
+            </table>
+        </div>
         """
-        return table_html
+        return pdf_layout
     except Exception:
         return f"<pre style='color: #f8fafc;'>{raw_text}</pre>"
 
@@ -483,10 +516,10 @@ def render_product_intelligence_card(p_data):
     """, unsafe_allow_html=True)
     
     st.markdown("<hr style='border-color: rgba(255,255,255,0.15); margin: 20px 0;'>", unsafe_allow_html=True)
-    st.markdown("<h4 style='color: #c084fc;'>📄 Structured Specification Document Viewer</h4>", unsafe_allow_html=True)
+    st.markdown("<h4 style='color: #c084fc;'>📄 Structured PDF Specification Document Viewer</h4>", unsafe_allow_html=True)
     
     st.markdown(f"""
-        <div style="max-height: 550px; overflow-y: auto;">
+        <div style="max-height: 600px; overflow-y: auto;">
     """, unsafe_allow_html=True)
     
     st.markdown(formatted_text, unsafe_allow_html=True)
