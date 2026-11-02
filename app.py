@@ -104,7 +104,6 @@ st.markdown("""
         padding: 25px 30px;
         box-shadow: 0 0 25px rgba(139, 92, 246, 0.25);
         margin-bottom: 25px;
-        width: 320px !important;
     }
 
     .stTextInput input {
@@ -132,11 +131,9 @@ st.markdown("""
         border: 1px solid rgba(139, 92, 246, 0.4) !important;
         border-radius: 12px !important;
         width: 100% !important;
-        display: block !important;
         text-align: center !important;
         font-weight: 600 !important;
         padding: 10px 15px !important;
-        margin-bottom: 10px !important;
         box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
         transition: all 0.2s ease-in-out !important;
     }
@@ -303,44 +300,52 @@ if query != st.session_state.last_query:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- VERTICAL STACKED UNIFORM CATEGORY LIST ---
 st.markdown('<div class="category-box">', unsafe_allow_html=True)
 st.markdown("<h3 style='margin-top: 0; margin-bottom: 20px; color: #ffffff; font-size: 18px; font-weight: 800;'>🗂️ Browse by Major Category</h3>", unsafe_allow_html=True)
 
-if st.button("🌴 Dates", key="cat_dates_btn"):
-    st.session_state.selected_category = "dates"
-    st.session_state.selected_product_code = None
-    st.rerun()
+# Perfectly Aligned Grid Using 4 Columns Uniformly
+cat_r1_c1, cat_r1_c2, cat_r1_c3, cat_r1_c4 = st.columns(4)
+with cat_r1_c1:
+    if st.button("🌴 Dates", key="cat_dates_btn"):
+        st.session_state.selected_category = "dates"
+        st.session_state.selected_product_code = None
+        st.rerun()
+with cat_r1_c2:
+    if st.button("🍇 Dried Fruits", key="cat_dried_btn"):
+        st.session_state.selected_category = "dried fruits"
+        st.session_state.selected_product_code = None
+        st.rerun()
+with cat_r1_c3:
+    if st.button("🥜 Nuts", key="cat_nuts_btn"):
+        st.session_state.selected_category = "nuts"
+        st.session_state.selected_product_code = None
+        st.rerun()
+with cat_r1_c4:
+    if st.button("🌾 Seeds & Oils", key="cat_seeds_btn"):
+        st.session_state.selected_category = "seeds & oils"
+        st.session_state.selected_product_code = None
+        st.rerun()
 
-if st.button("🌶️ Spices & Herbs", key="cat_spices_btn"):
-    st.session_state.selected_category = "spices"
-    st.session_state.selected_product_code = None
-    st.rerun()
+st.markdown("<div style='margin-top: 12px;'></div>", unsafe_allow_html=True)
 
-if st.button("🍇 Dried Fruits", key="cat_dried_btn"):
-    st.session_state.selected_category = "dried fruits"
-    st.session_state.selected_product_code = None
-    st.rerun()
-
-if st.button("🥜 Nuts", key="cat_nuts_btn"):
-    st.session_state.selected_category = "nuts"
-    st.session_state.selected_product_code = None
-    st.rerun()
-
-if st.button("🌾 Seeds & Oils", key="cat_seeds_btn"):
-    st.session_state.selected_category = "seeds & oils"
-    st.session_state.selected_product_code = None
-    st.rerun()
-
-if st.button("🫘 Pulses & Flours", key="cat_pulses_btn"):
-    st.session_state.selected_category = "pulses"
-    st.session_state.selected_product_code = None
-    st.rerun()
-
-if st.button("🌟 All Products", key="cat_all_btn"):
-    st.session_state.selected_category = "all"
-    st.session_state.selected_product_code = None
-    st.rerun()
+cat_r2_c1, cat_r2_c2, cat_r2_c3, cat_r2_c4 = st.columns(4)
+with cat_r2_c1:
+    if st.button("🌶️ Spices & Herbs", key="cat_spices_btn"):
+        st.session_state.selected_category = "spices"
+        st.session_state.selected_product_code = None
+        st.rerun()
+with cat_r2_c2:
+    if st.button("🫘 Pulses & Flours", key="cat_pulses_btn"):
+        st.session_state.selected_category = "pulses"
+        st.session_state.selected_product_code = None
+        st.rerun()
+with cat_r2_c3:
+    if st.button("🌟 All Products", key="cat_all_btn"):
+        st.session_state.selected_category = "all"
+        st.session_state.selected_product_code = None
+        st.rerun()
+with cat_r2_c4:
+    st.markdown("", unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
@@ -352,7 +357,7 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
     
     display_df = df.head(limit) if limit else df
     
-    header_cols = st.columns([1.5, 3.2, 1.8, 1.4, 0.4, 1.4])
+    header_cols = st.columns([1.5, 3.5, 2.0, 1.5, 1.5])
     with header_cols[0]:
         st.markdown("<p style='color: #c084fc; font-weight: 800; font-size: 14px;'>Product Code</p>", unsafe_allow_html=True)
     with header_cols[1]:
@@ -362,8 +367,6 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
     with header_cols[3]:
         st.markdown("<p style='color: #c084fc; font-weight: 800; font-size: 14px;'>View Spec</p>", unsafe_allow_html=True)
     with header_cols[4]:
-        st.markdown("", unsafe_allow_html=True)
-    with header_cols[5]:
         st.markdown("<p style='color: #c084fc; font-weight: 800; font-size: 14px;'>Download Spec</p>", unsafe_allow_html=True)
     
     st.markdown("<hr style='margin: 5px 0 15px 0; border-color: rgba(139, 92, 246, 0.4);'>", unsafe_allow_html=True)
@@ -376,7 +379,7 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
         if not p_code or p_code.lower() == 'nan' or p_code == 'SUFL7548':
             continue
             
-        row_cols = st.columns([1.5, 3.2, 1.8, 1.4, 0.4, 1.4])
+        row_cols = st.columns([1.5, 3.5, 2.0, 1.5, 1.5])
         with row_cols[0]:
             st.markdown(f"<p style='color: #38bdf8; font-weight: 600; padding-top: 8px;'>{p_code}</p>", unsafe_allow_html=True)
         with row_cols[1]:
@@ -388,8 +391,6 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
                 st.session_state.selected_product_code = p_code
                 st.rerun()
         with row_cols[4]:
-            st.markdown("", unsafe_allow_html=True)
-        with row_cols[5]:
             pdf_path = pdf_file_map.get(p_code.upper())
             if pdf_path and os.path.exists(pdf_path):
                 with open(pdf_path, "rb") as pdf_file:
@@ -397,22 +398,30 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
             else:
                 st.button("❌ N/A", key=f"{prefix}_no_pdf_{idx}_{p_code}", disabled=True)
 
-# --- SMART & PRECISE AI SEARCH AGENT ---
+# --- 100% PRECISE & ROBUST PDF AI SEARCH AGENT ---
 def ask_product_pdf_agent(raw_text, question):
     if not question:
         return "Please enter a valid question."
     
     q_lower = question.lower()
-    lines = raw_text.split('\n')
+    stop_words = {'does', 'do', 'contain', 'have', 'is', 'in', 'the', 'a', 'an', 'and', 'to', 'our', 'with', 'or', 'its', 'this', 'product', 'what', 'whats', 'quantity', 'value', 'of', 'present'}
+    keywords = [kw for kw in q_lower.split() if kw not in stop_words and len(kw) > 2]
     
-    matching_lines = []
+    if not keywords:
+        keywords = [q_lower]
+        
+    lines = raw_text.split('\n')
+    best_match = None
+    
     for line in lines:
         line_lower = line.lower()
-        if any(term in line_lower for term in q_lower.split() if len(term) > 2):
-            matching_lines.append(line.strip())
+        # Ensure that ALL core keywords from the query exist in the matching line
+        if all(kw in line_lower for kw in keywords):
+            best_match = line.strip()
+            break
             
-    if matching_lines:
-        return f"• {matching_lines[0]}"
+    if best_match:
+        return f"• {best_match}"
         
     return f"🤖 No specific information found for '{question}' in this specification document."
 
