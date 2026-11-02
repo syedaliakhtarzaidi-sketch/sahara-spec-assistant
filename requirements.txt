@@ -1,5 +1,7 @@
-pypdf
-pandas
 streamlit
+pandas
 openpyxl
+pypdf
 sentence-transformers
+faiss-cpu
+numpy
