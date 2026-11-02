@@ -193,7 +193,7 @@ def format_pdf_to_bullets(raw_text):
                 if not in_allergen_section and len(stripped) > 3:
                     rows_html += f"""
                     <tr>
-                        <td colspan='2' style='padding: 12px 16px; border: 1px solid rgba(128, 184, 19, 0.3); color: #f8fafc; font-weight: 500; background: rgba(15,23,42,0.95);'>{stripped}</td>
+                        <td colspan='2' style='padding: 12px 16px; border: 1px solid rgba(128, 184, 19, 0.3); color: #c084fc; font-weight: 800; background: rgba(128,184,19,0.1);'>{stripped}</td>
                     </tr>
                     """
 
