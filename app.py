@@ -104,6 +104,7 @@ st.markdown("""
         padding: 25px 30px;
         box-shadow: 0 0 25px rgba(139, 92, 246, 0.25);
         margin-bottom: 25px;
+        max-width: 400px;
     }
 
     .stTextInput input {
@@ -132,9 +133,10 @@ st.markdown("""
         border-radius: 12px !important;
         width: 100% !important;
         display: block !important;
-        text-align: center !important;
+        text-align: left !important;
         font-weight: 600 !important;
         padding: 12px 20px !important;
+        margin-bottom: 8px !important;
         box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
         transition: all 0.2s ease-in-out !important;
     }
@@ -346,53 +348,44 @@ if query != st.session_state.last_query:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
+# --- VERTICAL STACKED CATEGORY LIST ---
 st.markdown('<div class="category-box">', unsafe_allow_html=True)
 st.markdown("<h3 style='margin-top: 0; margin-bottom: 20px; color: #ffffff; font-size: 18px; font-weight: 800;'>🗂️ Browse by Major Category</h3>", unsafe_allow_html=True)
 
-# Perfectly Aligned Grid Using 4 Columns Uniformly
-cat_r1_c1, cat_r1_c2, cat_r1_c3, cat_r1_c4 = st.columns(4)
-with cat_r1_c1:
-    if st.button("🌴 Dates", key="cat_dates_btn"):
-        st.session_state.selected_category = "dates"
-        st.session_state.selected_product_code = None
-        st.rerun()
-with cat_r1_c2:
-    if st.button("🍇 Dried Fruits", key="cat_dried_btn"):
-        st.session_state.selected_category = "dried fruits"
-        st.session_state.selected_product_code = None
-        st.rerun()
-with cat_r1_c3:
-    if st.button("🥜 Nuts", key="cat_nuts_btn"):
-        st.session_state.selected_category = "nuts"
-        st.session_state.selected_product_code = None
-        st.rerun()
-with cat_r1_c4:
-    if st.button("🌾 Seeds & Oils", key="cat_seeds_btn"):
-        st.session_state.selected_category = "seeds & oils"
-        st.session_state.selected_product_code = None
-        st.rerun()
+if st.button("🌴 Dates", key="cat_dates_btn"):
+    st.session_state.selected_category = "dates"
+    st.session_state.selected_product_code = None
+    st.rerun()
 
-st.markdown("<div style='margin-top: 12px;'></div>", unsafe_allow_html=True)
+if st.button("🌶️ Spices & Herbs", key="cat_spices_btn"):
+    st.session_state.selected_category = "spices"
+    st.session_state.selected_product_code = None
+    st.rerun()
 
-cat_r2_c1, cat_r2_c2, cat_r2_c3, cat_r2_c4 = st.columns(4)
-with cat_r2_c1:
-    if st.button("🌶️ Spices & Herbs", key="cat_spices_btn"):
-        st.session_state.selected_category = "spices"
-        st.session_state.selected_product_code = None
-        st.rerun()
-with cat_r2_c2:
-    if st.button("🫘 Pulses & Flours", key="cat_pulses_btn"):
-        st.session_state.selected_category = "pulses"
-        st.session_state.selected_product_code = None
-        st.rerun()
-with cat_r2_c3:
-    if st.button("🌟 All Products", key="cat_all_btn"):
-        st.session_state.selected_category = "all"
-        st.session_state.selected_product_code = None
-        st.rerun()
-with cat_r2_c4:
-    # Empty column for clean symmetry
-    st.markdown("", unsafe_allow_html=True)
+if st.button("🍇 Dried Fruits", key="cat_dried_btn"):
+    st.session_state.selected_category = "dried fruits"
+    st.session_state.selected_product_code = None
+    st.rerun()
+
+if st.button("🥜 Nuts", key="cat_nuts_btn"):
+    st.session_state.selected_category = "nuts"
+    st.session_state.selected_product_code = None
+    st.rerun()
+
+if st.button("🌾 Seeds & Oils", key="cat_seeds_btn"):
+    st.session_state.selected_category = "seeds & oils"
+    st.session_state.selected_product_code = None
+    st.rerun()
+
+if st.button("🫘 Pulses & Flours", key="cat_pulses_btn"):
+    st.session_state.selected_category = "pulses"
+    st.session_state.selected_product_code = None
+    st.rerun()
+
+if st.button("🌟 All Products", key="cat_all_btn"):
+    st.session_state.selected_category = "all"
+    st.session_state.selected_product_code = None
+    st.rerun()
 
 st.markdown('</div>', unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
@@ -527,7 +520,6 @@ def render_product_intelligence_card(p_data):
         <div style="max-height: 600px; overflow-y: auto;">
     """, unsafe_allow_html=True)
     
-    # Using st.html() to render structured tables cleanly without code blocks
     st.html(formatted_text)
     
     st.markdown("""
