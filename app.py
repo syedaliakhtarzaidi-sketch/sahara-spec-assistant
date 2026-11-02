@@ -104,7 +104,7 @@ st.markdown("""
         padding: 25px 30px;
         box-shadow: 0 0 25px rgba(139, 92, 246, 0.25);
         margin-bottom: 25px;
-        max-width: 400px;
+        width: 320px !important;
     }
 
     .stTextInput input {
@@ -131,12 +131,12 @@ st.markdown("""
         color: #ffffff !important;
         border: 1px solid rgba(139, 92, 246, 0.4) !important;
         border-radius: 12px !important;
-        width: 100% !important;
+        width: 260px !important;
         display: block !important;
         text-align: left !important;
         font-weight: 600 !important;
         padding: 12px 20px !important;
-        margin-bottom: 8px !important;
+        margin-bottom: 10px !important;
         box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
         transition: all 0.2s ease-in-out !important;
     }
@@ -348,7 +348,7 @@ if query != st.session_state.last_query:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- VERTICAL STACKED CATEGORY LIST ---
+# --- VERTICAL STACKED UNIFORM CATEGORY LIST ---
 st.markdown('<div class="category-box">', unsafe_allow_html=True)
 st.markdown("<h3 style='margin-top: 0; margin-bottom: 20px; color: #ffffff; font-size: 18px; font-weight: 800;'>🗂️ Browse by Major Category</h3>", unsafe_allow_html=True)
 
