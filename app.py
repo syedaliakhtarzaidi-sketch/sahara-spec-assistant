@@ -149,14 +149,13 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- SMART FORMATTED PDF TABLE LAYOUT ---
+# --- SMART FORMATTED TEXT CONVERSION & FILTERING ---
 def format_pdf_to_bullets(raw_text):
     if not raw_text:
-        return "<p style='color: #94a3b8;'>No text available.</p>"
+        return "No text available."
     try:
         lines = raw_text.split('\n')
-        rows_html = ""
-        in_allergen_section = False
+        formatted_bullets = []
         
         exclude_keywords = [
             "Nazia Shamim", "on behalf of SUFL", "on behalf of Customer", 
@@ -172,61 +171,17 @@ def format_pdf_to_bullets(raw_text):
             if any(exc.lower() in stripped.lower() for exc in exclude_keywords) and len(stripped) < 40:
                 continue
                 
-            if "Allergen Table" in stripped or "2. Allergen" in stripped:
-                in_allergen_section = True
-                rows_html += "<tr><td colspan='2' style='background: #80B813; color: #000; font-weight: 900; padding: 12px 16px; font-size: 15px;'>2. Allergen Table</td></tr>"
-                continue
-            
             if "No No No" in line:
                 line = line.replace("No No No", " [Contains: No | Processed on Equipment: No | Handled on Site: No]")
-
-            if ":" in stripped:
-                parts = stripped.split(":", 1)
-                key = parts[0].strip()
-                val = parts[1].strip() if len(parts) > 1 else ""
-                
-                if not in_allergen_section:
-                    rows_html += f"""
-                    <tr>
-                        <td style='padding: 12px 16px; border: 1px solid rgba(128, 184, 19, 0.3); color: #38bdf8; font-weight: 700; width: 35%; background: rgba(15,23,42,0.95); vertical-align: top;'>{key}</td>
-                        <td style='padding: 12px 16px; border: 1px solid rgba(128, 184, 19, 0.3); color: #f8fafc; font-weight: 500; width: 65%; background: rgba(15,23,42,0.95); vertical-align: top;'>{val}</td>
-                    </tr>
-                    """
-            else:
-                if not in_allergen_section and len(stripped) > 3:
-                    rows_html += f"""
-                    <tr>
-                        <td colspan='2' style='padding: 12px 16px; border: 1px solid rgba(128, 184, 19, 0.3); color: #c084fc; font-weight: 800; background: rgba(128,184,19,0.1);'>{stripped}</td>
-                    </tr>
-                    """
-
-        pdf_layout = f"""
-        <div style='background: #090d16; border: 2px solid #80B813; border-radius: 18px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.6);'>
-            <div style='display: flex; border: 2px solid #80B813; border-radius: 12px; overflow: hidden; margin-bottom: 25px;'>
-                <div style='background: #ffffff; padding: 15px; display: flex; align-items: center; justify-content: center; width: 25%;'>
-                    <span style='color: #000; font-weight: 900; font-size: 18px;'>Sahara <span style='font-size: 10px;'>UK Foods</span></span>
-                </div>
-                <div style='background: #dcfce7; color: #166534; padding: 15px 20px; font-weight: 800; font-size: 18px; width: 75%; display: flex; align-items: center;'>
-                    Product Specification Document Viewer
-                </div>
-            </div>
             
-            <table style='width: 100%; border-collapse: collapse;'>
-                <thead>
-                    <tr style='background: #80B813; color: #000;'>
-                        <th style='padding: 12px 16px; text-align: left; border: 1px solid #65a30d; width: 35%; font-weight: 900;'>Item</th>
-                        <th style='padding: 12px 16px; text-align: left; border: 1px solid #65a30d; width: 65%; font-weight: 900;'>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {rows_html}
-                </tbody>
-            </table>
-        </div>
-        """
-        return pdf_layout
+            if any(k in stripped for k in ["Product Name", "Product Code", "Ingredients", "Product Description", "Quality", "Origin", "Unit Size", "Packing", "Storage", "Nutritional data"]):
+                formatted_bullets.append(f"\n* **{stripped}**")
+            else:
+                formatted_bullets.append(f"  * {stripped}")
+                
+        return "\n".join(formatted_bullets)
     except Exception:
-        return f"<pre style='color: #f8fafc;'>{raw_text}</pre>"
+        return raw_text
 
 # --- 3. EXCEL LOADER & EXCLUSION OF SUFL7548 ---
 @st.cache_resource
@@ -282,7 +237,7 @@ def get_pdf_spec_content(p_code):
             return pdf_path, format_pdf_to_bullets(raw_text), raw_text
         except Exception:
             pass
-    return None, "<p style='color: #f87171;'>No detailed text extracted for this product specification.</p>", ""
+    return None, "No detailed text extracted for this product specification.", ""
 
 # --- 4. HEADER ---
 st.markdown("""
@@ -397,7 +352,8 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
     
     display_df = df.head(limit) if limit else df
     
-    header_cols = st.columns([1.5, 3.5, 2.0, 1.5, 1.5])
+    # Adjusted column widths with proper spacing for View and Download buttons
+    header_cols = st.columns([1.5, 3.2, 1.8, 1.4, 0.3, 1.4])
     with header_cols[0]:
         st.markdown("<p style='color: #c084fc; font-weight: 800; font-size: 14px;'>Product Code</p>", unsafe_allow_html=True)
     with header_cols[1]:
@@ -407,6 +363,8 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
     with header_cols[3]:
         st.markdown("<p style='color: #c084fc; font-weight: 800; font-size: 14px;'>View Spec</p>", unsafe_allow_html=True)
     with header_cols[4]:
+        st.markdown("", unsafe_allow_html=True) # Spacer column
+    with header_cols[5]:
         st.markdown("<p style='color: #c084fc; font-weight: 800; font-size: 14px;'>Download Spec</p>", unsafe_allow_html=True)
     
     st.markdown("<hr style='margin: 5px 0 15px 0; border-color: rgba(139, 92, 246, 0.4);'>", unsafe_allow_html=True)
@@ -419,7 +377,7 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
         if not p_code or p_code.lower() == 'nan' or p_code == 'SUFL7548':
             continue
             
-        row_cols = st.columns([1.5, 3.5, 2.0, 1.5, 1.5])
+        row_cols = st.columns([1.5, 3.2, 1.8, 1.4, 0.3, 1.4])
         with row_cols[0]:
             st.markdown(f"<p style='color: #38bdf8; font-weight: 600; padding-top: 8px;'>{p_code}</p>", unsafe_allow_html=True)
         with row_cols[1]:
@@ -431,6 +389,8 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
                 st.session_state.selected_product_code = p_code
                 st.rerun()
         with row_cols[4]:
+            st.markdown("", unsafe_allow_html=True) # Spacer column
+        with row_cols[5]:
             pdf_path = pdf_file_map.get(p_code.upper())
             if pdf_path and os.path.exists(pdf_path):
                 with open(pdf_path, "rb") as pdf_file:
@@ -514,13 +474,13 @@ def render_product_intelligence_card(p_data):
     """, unsafe_allow_html=True)
     
     st.markdown("<hr style='border-color: rgba(255,255,255,0.15); margin: 20px 0;'>", unsafe_allow_html=True)
-    st.markdown("<h4 style='color: #c084fc;'>📄 Structured PDF Specification Document Viewer</h4>", unsafe_allow_html=True)
+    st.markdown("<h4 style='color: #c084fc;'>📄 Formatted Specification Document Viewer</h4>", unsafe_allow_html=True)
     
     st.markdown(f"""
-        <div style="max-height: 600px; overflow-y: auto;">
+        <div style="background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(139, 92, 246, 0.5); border-radius: 14px; padding: 25px; max-height: 500px; overflow-y: auto; color: #f8fafc; font-size: 14px; line-height: 1.6;">
     """, unsafe_allow_html=True)
     
-    st.html(formatted_text)
+    st.markdown(formatted_text)
     
     st.markdown("""
         </div>
