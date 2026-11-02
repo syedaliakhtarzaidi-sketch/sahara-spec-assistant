@@ -131,11 +131,11 @@ st.markdown("""
         color: #ffffff !important;
         border: 1px solid rgba(139, 92, 246, 0.4) !important;
         border-radius: 12px !important;
-        width: 260px !important;
+        width: 100% !important;
         display: block !important;
-        text-align: left !important;
+        text-align: center !important;
         font-weight: 600 !important;
-        padding: 12px 20px !important;
+        padding: 10px 15px !important;
         margin-bottom: 10px !important;
         box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
         transition: all 0.2s ease-in-out !important;
@@ -352,8 +352,8 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
     
     display_df = df.head(limit) if limit else df
     
-    # Adjusted column widths with proper spacing for View and Download buttons
-    header_cols = st.columns([1.5, 3.2, 1.8, 1.4, 0.3, 1.4])
+    # Perfectly spaced table columns layout
+    header_cols = st.columns([1.5, 3.2, 1.8, 1.4, 0.4, 1.4])
     with header_cols[0]:
         st.markdown("<p style='color: #c084fc; font-weight: 800; font-size: 14px;'>Product Code</p>", unsafe_allow_html=True)
     with header_cols[1]:
@@ -363,7 +363,7 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
     with header_cols[3]:
         st.markdown("<p style='color: #c084fc; font-weight: 800; font-size: 14px;'>View Spec</p>", unsafe_allow_html=True)
     with header_cols[4]:
-        st.markdown("", unsafe_allow_html=True) # Spacer column
+        st.markdown("", unsafe_allow_html=True)
     with header_cols[5]:
         st.markdown("<p style='color: #c084fc; font-weight: 800; font-size: 14px;'>Download Spec</p>", unsafe_allow_html=True)
     
@@ -377,7 +377,7 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
         if not p_code or p_code.lower() == 'nan' or p_code == 'SUFL7548':
             continue
             
-        row_cols = st.columns([1.5, 3.2, 1.8, 1.4, 0.3, 1.4])
+        row_cols = st.columns([1.5, 3.2, 1.8, 1.4, 0.4, 1.4])
         with row_cols[0]:
             st.markdown(f"<p style='color: #38bdf8; font-weight: 600; padding-top: 8px;'>{p_code}</p>", unsafe_allow_html=True)
         with row_cols[1]:
@@ -389,7 +389,7 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
                 st.session_state.selected_product_code = p_code
                 st.rerun()
         with row_cols[4]:
-            st.markdown("", unsafe_allow_html=True) # Spacer column
+            st.markdown("", unsafe_allow_html=True) # Proper gap between buttons
         with row_cols[5]:
             pdf_path = pdf_file_map.get(p_code.upper())
             if pdf_path and os.path.exists(pdf_path):
