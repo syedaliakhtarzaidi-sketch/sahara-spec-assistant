@@ -171,7 +171,7 @@ def format_pdf_to_bullets(raw_text):
                 
             if "Allergen Table" in stripped or "2. Allergen" in stripped:
                 in_allergen_section = True
-                rows_html += f"<tr><td colspan='2' style='background: #80B813; color: #000; font-weight: 900; padding: 12px 16px; font-size: 15px;'>2. Allergen Table</td></tr>"
+                rows_html += "<tr><td colspan='2' style='background: #80B813; color: #000; font-weight: 900; padding: 12px 16px; font-size: 15px;'>2. Allergen Table</td></tr>"
                 continue
             
             if "No No No" in line:
@@ -195,7 +195,6 @@ def format_pdf_to_bullets(raw_text):
 
         pdf_layout = f"""
         <div style='background: #090d16; border: 2px solid #80B813; border-radius: 18px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.6);'>
-            <!-- Header Box similar to PDF -->
             <div style='display: flex; border: 2px solid #80B813; border-radius: 12px; overflow: hidden; margin-bottom: 25px;'>
                 <div style='background: #ffffff; padding: 15px; display: flex; align-items: center; justify-content: center; width: 25%;'>
                     <span style='color: #000; font-weight: 900; font-size: 18px;'>Sahara <span style='font-size: 10px;'>UK Foods</span></span>
@@ -205,7 +204,6 @@ def format_pdf_to_bullets(raw_text):
                 </div>
             </div>
             
-            <!-- Main Info Table -->
             <table style='width: 100%; border-collapse: collapse;'>
                 <thead>
                     <tr style='background: #80B813; color: #000;'>
@@ -522,6 +520,7 @@ def render_product_intelligence_card(p_data):
         <div style="max-height: 600px; overflow-y: auto;">
     """, unsafe_allow_html=True)
     
+    # FIXED: Added unsafe_allow_html=True so tables render cleanly instead of raw code
     st.markdown(formatted_text, unsafe_allow_html=True)
     
     st.markdown("""
