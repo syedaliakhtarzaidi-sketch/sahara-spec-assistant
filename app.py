@@ -185,13 +185,17 @@ def format_pdf_to_bullets(raw_text):
                 if not in_allergen_section:
                     rows_html += f"""
                     <tr>
-                        <td style='padding: 12px 16px; border: 1px solid rgba(128, 184, 19, 0.3); color: #38bdf8; font-weight: 700; width: 38%; background: rgba(15,23,42,0.95);'>{key}</td>
-                        <td style='padding: 12px 16px; border: 1px solid rgba(128, 184, 19, 0.3); color: #f8fafc; font-weight: 500; background: rgba(15,23,42,0.95);'>{val}</td>
+                        <td style='padding: 12px 16px; border: 1px solid rgba(128, 184, 19, 0.3); color: #38bdf8; font-weight: 700; width: 35%; background: rgba(15,23,42,0.95); vertical-align: top;'>{key}</td>
+                        <td style='padding: 12px 16px; border: 1px solid rgba(128, 184, 19, 0.3); color: #f8fafc; font-weight: 500; width: 65%; background: rgba(15,23,42,0.95); vertical-align: top;'>{val}</td>
                     </tr>
                     """
             else:
                 if not in_allergen_section and len(stripped) > 3:
-                    rows_html += f"<tr><td colspan='2' style='padding: 12px 16px; border: 1px solid rgba(128, 184, 19, 0.3); color: #c084fc; font-weight: 800; background: rgba(128,184,19,0.1);'>{stripped}</td></tr>"
+                    rows_html += f"""
+                    <tr>
+                        <td colspan='2' style='padding: 12px 16px; border: 1px solid rgba(128, 184, 19, 0.3); color: #f8fafc; font-weight: 500; background: rgba(15,23,42,0.95);'>{stripped}</td>
+                    </tr>
+                    """
 
         pdf_layout = f"""
         <div style='background: #090d16; border: 2px solid #80B813; border-radius: 18px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.6);'>
@@ -207,8 +211,8 @@ def format_pdf_to_bullets(raw_text):
             <table style='width: 100%; border-collapse: collapse;'>
                 <thead>
                     <tr style='background: #80B813; color: #000;'>
-                        <th style='padding: 12px 16px; text-align: left; border: 1px solid #65a30d; width: 38%; font-weight: 900;'>Item</th>
-                        <th style='padding: 12px 16px; text-align: left; border: 1px solid #65a30d; font-weight: 900;'>Description</th>
+                        <th style='padding: 12px 16px; text-align: left; border: 1px solid #65a30d; width: 35%; font-weight: 900;'>Item</th>
+                        <th style='padding: 12px 16px; text-align: left; border: 1px solid #65a30d; width: 65%; font-weight: 900;'>Description</th>
                     </tr>
                 </thead>
                 <tbody>
