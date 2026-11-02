@@ -169,12 +169,12 @@ def format_pdf_to_bullets(raw_text):
                 continue
                 
             if "No No No" in line:
-                line = line.replace("No No No", " [Contains: No | Processed on Equipment: No | Handled on Site: No]")
+                line = line.replace("No No No", "No")
             
             if any(k in stripped for k in ["Product Name", "Product Code", "Ingredients", "Product Description", "Quality", "Origin", "Unit Size", "Packing", "Storage", "Nutritional data"]):
-                formatted_bullets.append(f"\n* **{stripped}**")
+                formatted_bullets.append(f"\n* **{line.strip()}**")
             else:
-                formatted_bullets.append(f"  * {stripped}")
+                formatted_bullets.append(f"  * {line.strip()}")
                 
         return "\n".join(formatted_bullets)
     except Exception:
@@ -397,7 +397,7 @@ def render_bulletproof_table(df, limit=50, prefix="tbl"):
             else:
                 st.button("❌ N/A", key=f"{prefix}_no_pdf_{idx}_{p_code}", disabled=True)
 
-# --- ULTRA SMART & FLEXIBLE AI SEARCH AGENT ---
+# --- ULTRA SMART & CLEAN AI SEARCH AGENT ---
 def ask_product_pdf_agent(raw_text, question):
     if not question:
         return "Please enter a valid question."
@@ -411,11 +411,11 @@ def ask_product_pdf_agent(raw_text, question):
         
     lines = raw_text.split('\n')
     
-    # Direct keyword matching on individual lines for precise answers
     for line in lines:
         line_lower = line.lower()
         if any(kw in line_lower for kw in keywords):
-            return f"• {line.strip()}"
+            cleaned_line = line.strip().replace("No No No", "No")
+            return f"• {cleaned_line}"
             
     return f"🤖 No specific information found for '{question}' in this specification document."
 
