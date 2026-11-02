@@ -2,3 +2,4 @@ pypdf
 pandas
 streamlit
 openpyxl
+sentence-transformers
