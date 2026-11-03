@@ -1,8 +1,11 @@
 
 import os
 import re
+import html
+import base64
 import streamlit as st
 import pandas as pd
+import streamlit.components.v1 as components
 
 st.set_page_config(
     page_title="Sahara | Food Science Intelligence",
@@ -83,10 +86,25 @@ hr {border-color:#405247;}
 """, unsafe_allow_html=True)
 
 
+# ---------------- CONSTANTS ----------------
+
+CATEGORIES = [
+    "All Products",
+    "Dates",
+    "Dried Fruits",
+    "Nuts",
+    "Seeds & Oils",
+    "Spices & Herbs",
+    "Pulses & Flours",
+    "Other"
+]
+
+
 # ---------------- DATA ----------------
 
 @st.cache_data
 def load_products():
+
     path = "Product_Specs_Summary.xlsx"
 
     if not os.path.exists(path):
@@ -95,19 +113,27 @@ def load_products():
     df = pd.read_excel(path)
     df.columns = [str(c).strip() for c in df.columns]
 
-    required = ["Product Code", "Product Name", "Country of Origin"]
+    required = [
+        "Product Code",
+        "Product Name",
+        "Country of Origin"
+    ]
 
     missing = [c for c in required if c not in df.columns]
 
     if missing:
-        st.error("Missing Excel columns: " + ", ".join(missing))
         return pd.DataFrame()
 
     df = df.copy()
 
     df["Product Code"] = df["Product Code"].astype(str).str.strip()
     df["Product Name"] = df["Product Name"].fillna("").astype(str).str.strip()
-    df["Country of Origin"] = df["Country of Origin"].fillna("Not specified").astype(str).str.strip()
+    df["Country of Origin"] = (
+        df["Country of Origin"]
+        .fillna("Not specified")
+        .astype(str)
+        .str.strip()
+    )
 
     df = df[
         (df["Product Code"] != "") &
@@ -116,19 +142,20 @@ def load_products():
     ]
 
     df = df.drop_duplicates(subset=["Product Code"])
-    df = df.sort_values("Product Name").reset_index(drop=True)
 
-    if "Country of Origin" in df.columns:
-        df.loc[
-            df["Product Code"] == "SUFL7390",
-            "Country of Origin"
-        ] = "Algeria / Tunisia"
+    df.loc[
+        df["Product Code"] == "SUFL7390",
+        "Country of Origin"
+    ] = "Algeria / Tunisia"
+
+    df = df.sort_values("Product Name").reset_index(drop=True)
 
     return df
 
 
 def identify_category(name):
-    n = name.lower()
+
+    n = str(name).lower()
 
     categories = {
         "Dates": [
@@ -136,9 +163,9 @@ def identify_category(name):
             "ajwa", "khudri", "zahedi"
         ],
         "Dried Fruits": [
-            "apricot", "fig", "raisin", "sultana", "cranberry",
-            "prune", "plum", "mango", "banana", "pineapple",
-            "physalis", "goldenberry"
+            "apricot", "fig", "raisin", "sultana",
+            "cranberry", "prune", "plum", "mango",
+            "banana", "pineapple", "physalis", "goldenberry"
         ],
         "Nuts": [
             "almond", "pistachio", "cashew", "walnut",
@@ -148,12 +175,12 @@ def identify_category(name):
             "sesame", "seed", "oil", "coconut"
         ],
         "Spices & Herbs": [
-            "saffron", "garlic", "spice", "herb", "pepper",
-            "turmeric", "cinnamon"
+            "saffron", "garlic", "spice", "herb",
+            "pepper", "turmeric", "cinnamon"
         ],
         "Pulses & Flours": [
-            "pea", "lentil", "flour", "bean", "chickpea",
-            "pulse", "cacao", "cocoa"
+            "pea", "lentil", "flour", "bean",
+            "chickpea", "pulse", "cacao", "cocoa"
         ]
     }
 
@@ -168,11 +195,13 @@ def identify_category(name):
 
 @st.cache_data
 def get_pdf_mapping(product_codes):
+
     mapping = {}
 
     search_dirs = ["pdfs", "PDFs", "pdf", "."]
 
     for directory in search_dirs:
+
         if not os.path.isdir(directory):
             continue
 
@@ -182,21 +211,34 @@ def get_pdf_mapping(product_codes):
             continue
 
         for filename in files:
+
             if not filename.lower().endswith(".pdf"):
                 continue
 
             for code in product_codes:
+
                 if code.lower() in filename.lower():
-                    mapping[code] = os.path.join(directory, filename)
+
+                    full_path = os.path.join(directory, filename)
+
+                    if code not in mapping:
+                        mapping[code] = full_path
 
     return mapping
 
 
+# ---------------- LOAD DATABASE ----------------
+
 df = load_products()
 
 if not df.empty:
+
     df["Category"] = df["Product Name"].apply(identify_category)
-    pdf_map = get_pdf_mapping(df["Product Code"].tolist())
+
+    pdf_map = get_pdf_mapping(
+        tuple(df["Product Code"].tolist())
+    )
+
 else:
     pdf_map = {}
 
@@ -222,29 +264,14 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="eyebrow">MAIN MENU</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="eyebrow">MAIN MENU</div>',
+        unsafe_allow_html=True
+    )
 
     page = st.radio(
         "Navigation",
         ["Dashboard", "Product Database"],
-        label_visibility="collapsed"
-    )
-
-    st.markdown("---")
-    st.markdown('<div class="eyebrow">PRODUCT CATEGORIES</div>', unsafe_allow_html=True)
-
-    category_filter = st.radio(
-        "Categories",
-        [
-            "All Products",
-            "Dates",
-            "Dried Fruits",
-            "Nuts",
-            "Seeds & Oils",
-            "Spices & Herbs",
-            "Pulses & Flours",
-            "Other"
-        ],
         label_visibility="collapsed"
     )
 
@@ -271,8 +298,11 @@ if page == "Dashboard":
     st.markdown("### Overview")
 
     if df.empty:
+
         st.error("Product database could not be loaded.")
+
     else:
+
         a, b, c = st.columns(3)
 
         with a:
@@ -302,18 +332,23 @@ if page == "Dashboard":
         st.write("")
         st.markdown("### Product Categories")
 
-        counts = (
-            df["Category"]
-            .value_counts()
-            .rename_axis("Category")
-            .reset_index(name="Products")
-        )
+        counts = df["Category"].value_counts()
 
-        st.dataframe(
-            counts,
-            use_container_width=True,
-            hide_index=True
-        )
+        columns = st.columns(4)
+
+        for i, category in enumerate(CATEGORIES[1:]):
+
+            count = int(counts.get(category, 0))
+
+            with columns[i % 4]:
+
+                st.markdown(f"""
+                <div class="metric" style="margin-bottom:12px">
+                    <div class="muted">{html.escape(category.upper())}</div>
+                    <div class="metric-number">{count}</div>
+                    <div class="muted">Products</div>
+                </div>
+                """, unsafe_allow_html=True)
 
 
 # ---------------- PRODUCT DATABASE ----------------
@@ -321,57 +356,48 @@ if page == "Dashboard":
 elif page == "Product Database":
 
     st.markdown("### Product Database")
+
     st.markdown(
-        '<p class="muted">Search, filter and select products from the Sahara specification index.</p>',
+        '<p class="muted">Select a category to explore its products and technical documentation.</p>',
         unsafe_allow_html=True
     )
 
     if df.empty:
+
         st.error("Product database is empty or Excel file is unavailable.")
 
     else:
 
-        search_col, category_col = st.columns([2, 1])
+        # CATEGORY SELECTION
 
-        with search_col:
-            search = st.text_input(
-                "Search products",
-                placeholder="Enter product code, product name or origin..."
-            )
+        st.markdown("#### 01 — Select Category")
 
-        with category_col:
-            selected_category = st.selectbox(
-                "Category",
-                [
-                    "All Products",
-                    "Dates",
-                    "Dried Fruits",
-                    "Nuts",
-                    "Seeds & Oils",
-                    "Spices & Herbs",
-                    "Pulses & Flours",
-                    "Other"
-                ],
-                index=[
-                    "All Products",
-                    "Dates",
-                    "Dried Fruits",
-                    "Nuts",
-                    "Seeds & Oils",
-                    "Spices & Herbs",
-                    "Pulses & Flours",
-                    "Other"
-                ].index(category_filter)
-            )
+        selected_category = st.selectbox(
+            "Product Category",
+            CATEGORIES,
+            key="category_selector"
+        )
 
         filtered = df.copy()
 
         if selected_category != "All Products":
+
             filtered = filtered[
                 filtered["Category"] == selected_category
             ]
 
+        # SEARCH
+
+        st.markdown("#### 02 — Find a Product")
+
+        search = st.text_input(
+            "Search",
+            placeholder="Search by product code, name or country of origin...",
+            key="product_search"
+        )
+
         if search.strip():
+
             term = search.strip().lower()
 
             mask = (
@@ -382,95 +408,124 @@ elif page == "Product Database":
 
             filtered = filtered[mask]
 
-        st.markdown("---")
-
         st.markdown(
-            f"**{len(filtered)} products found**"
+            f'<div class="muted">{len(filtered)} matching products</div>',
+            unsafe_allow_html=True
         )
 
+        st.markdown("---")
+
+        # PRODUCT SELECTION
+
         if filtered.empty:
+
             st.warning("No matching products found.")
 
         else:
 
-            display = filtered[
-                ["Product Code", "Product Name", "Country of Origin", "Category"]
-            ].copy()
-
-            st.dataframe(
-                display,
-                use_container_width=True,
-                hide_index=True,
-                height=420
-            )
-
-            st.markdown("### Select a Product")
+            product_lookup = {
+                row["Product Code"]: row["Product Name"]
+                for _, row in filtered.iterrows()
+            }
 
             product_options = filtered["Product Code"].tolist()
 
             selected_code = st.selectbox(
-                "Product Code",
+                "Product",
                 product_options,
                 format_func=lambda code: (
-                    code + " — " +
-                    filtered.loc[
-                        filtered["Product Code"] == code,
-                        "Product Name"
-                    ].iloc[0]
-                )
+                    f"{code}  —  {product_lookup.get(code, '')}"
+                ),
+                key="product_selector"
             )
 
-            if st.button("View Product Details", use_container_width=True):
-                st.session_state.selected_product = selected_code
+            # SELECTED PRODUCT DETAILS
 
-            if st.session_state.selected_product:
-                selected = df[
-                    df["Product Code"] == st.session_state.selected_product
-                ]
+            selected = df[
+                df["Product Code"] == selected_code
+            ]
 
-                if not selected.empty:
+            if not selected.empty:
 
-                    row = selected.iloc[0]
-                    code = row["Product Code"]
-                    name = row["Product Name"]
-                    origin = row["Country of Origin"]
-                    category = row["Category"]
+                row = selected.iloc[0]
 
-                    st.markdown("---")
-                    st.markdown("### Selected Product")
+                code = row["Product Code"]
+                name = row["Product Name"]
+                origin = row["Country of Origin"]
+                category = row["Category"]
 
-                    st.markdown(f"""
-                    <div class="panel">
-                        <div class="eyebrow">PRODUCT INFORMATION</div>
-                        <h3>{name}</h3>
-                        <p class="muted">Product Code: {code}</p>
-                        <p class="muted">Origin: {origin}</p>
-                        <p class="muted">Category: {category}</p>
-                    </div>
-                    """, unsafe_allow_html=True)
+                st.markdown("---")
+                st.markdown("#### 03 — Product Information")
 
-                    pdf_path = pdf_map.get(code)
+                st.markdown(f"""
+                <div class="panel">
+                    <div class="eyebrow">PRODUCT INFORMATION</div>
+                    <h3>{html.escape(name)}</h3>
+                    <p class="muted">Product Code: {html.escape(code)}</p>
+                    <p class="muted">Country of Origin: {html.escape(origin)}</p>
+                    <p class="muted">Category: {html.escape(category)}</p>
+                </div>
+                """, unsafe_allow_html=True)
 
-                    if pdf_path and os.path.exists(pdf_path):
+                # PDF VIEW AND DOWNLOAD
 
-                        with open(pdf_path, "rb") as file:
-                            pdf_bytes = file.read()
+                pdf_path = pdf_map.get(code)
 
-                        st.success("Official specification PDF found.")
+                st.markdown("#### 04 — Technical Documentation")
+
+                if pdf_path and os.path.exists(pdf_path):
+
+                    with open(pdf_path, "rb") as file:
+                        pdf_bytes = file.read()
+
+                    st.success("Original specification PDF found.")
+
+                    col1, col2 = st.columns(2)
+
+                    with col1:
 
                         st.download_button(
-                            "Download Original Specification PDF",
+                            "Download Original PDF",
                             data=pdf_bytes,
                             file_name=os.path.basename(pdf_path),
                             mime="application/pdf",
                             use_container_width=True
                         )
 
-                    else:
-                        st.warning(
-                            "No matching PDF was found for this product."
+                    with col2:
+
+                        if st.button(
+                            "View Original PDF",
+                            use_container_width=True
+                        ):
+                            st.session_state.show_pdf = not st.session_state.get(
+                                "show_pdf", False
+                            )
+
+                    if st.session_state.get("show_pdf", False):
+
+                        encoded_pdf = base64.b64encode(
+                            pdf_bytes
+                        ).decode("utf-8")
+
+                        pdf_html = f"""
+                        <iframe
+                            src="data:application/pdf;base64,{encoded_pdf}"
+                            width="100%"
+                            height="800"
+                            style="border:1px solid #405247;border-radius:10px"
+                            type="application/pdf">
+                        </iframe>
+                        """
+
+                        components.html(
+                            pdf_html,
+                            height=820,
+                            scrolling=True
                         )
 
-                    if st.button("Clear Product Selection"):
-                        st.session_state.selected_product = None
-                        st.rerun()
+                else:
+
+                    st.warning(
+                        "No matching PDF was found for this product."
+                    )
