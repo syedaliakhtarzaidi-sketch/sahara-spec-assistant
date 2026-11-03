@@ -1,53 +1,49 @@
 
 import streamlit as st
-
-# ==========================================================
-# SAHARA UK FOODS | PREMIUM FOOD TRADING INTELLIGENCE
-# European Luxury B2B Design | Free Streamlit Edition
-# ==========================================================
+import streamlit.components.v1 as components
 
 st.set_page_config(
-    page_title="Sahara UK Foods | Intelligence",
+    page_title="SAHARA | Product Intelligence",
     page_icon="🌿",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-# ------------------------- CSS ----------------------------
+# --------------------------------------------------
+# SAHARA DESIGN SYSTEM
+# --------------------------------------------------
+
+GREEN = "#19382F"
+DARK = "#122A23"
+GOLD = "#B69A68"
+CREAM = "#F6F4EE"
+TEXT = "#252B27"
+MUTED = "#777D75"
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 :root {
-    --cream: #F5F3EC;
-    --paper: #FBFAF6;
-    --green: #193D32;
-    --green2: #285747;
-    --gold: #B49A65;
-    --brown: #74513A;
-    --text: #25352D;
-    --muted: #858D81;
-    --line: #E7E4D9;
+    --green: #19382F;
+    --dark: #122A23;
+    --gold: #B69A68;
+    --cream: #F6F4EE;
+    --text: #252B27;
+    --muted: #777D75;
 }
 
 html, body, [class*="css"] {
     font-family: 'DM Sans', sans-serif;
+    color: var(--text);
 }
 
 .stApp {
     background: var(--cream);
-    color: var(--text);
 }
 
 header[data-testid="stHeader"] {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-
-header[data-testid="stHeader"]::after {
-    display: none !important;
+    background: transparent;
 }
 
 #MainMenu, footer {
@@ -55,752 +51,430 @@ header[data-testid="stHeader"]::after {
 }
 
 .block-container {
-    max-width: 1500px;
-    padding-top: 1.6rem !important;
-    padding-bottom: 3rem !important;
+    max-width: 1440px;
+    padding-top: 1.5rem;
+    padding-bottom: 4rem;
 }
 
-[data-testid="stToolbar"] {
-    right: 1rem;
+/* Header */
+
+.brand {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 29px;
+    letter-spacing: 5px;
+    color: var(--green);
 }
 
-/* Sidebar */
-
-section[data-testid="stSidebar"] {
-    background: var(--green);
-    border-right: none;
-}
-
-section[data-testid="stSidebar"] > div {
-    padding: 1.5rem 1.1rem;
-}
-
-section[data-testid="stSidebar"] p,
-section[data-testid="stSidebar"] label {
-    color: #E9E9DD !important;
-}
-
-section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
-    color: #E9E9DD;
-}
-
-section[data-testid="stSidebar"] .stRadio label {
-    padding: 9px 10px;
-    border-radius: 7px;
-    font-size: 13px;
-}
-
-section[data-testid="stSidebar"] .stRadio label:hover {
-    background: rgba(255,255,255,.08);
-}
-
-/* Typography */
-
-h1, h2, h3 {
-    color: var(--green) !important;
-    font-family: 'Playfair Display', serif !important;
-}
-
-p {
-    color: var(--text);
-}
-
-/* Inputs */
-
-.stTextInput input,
-.stTextArea textarea {
-    background: #FFFDF8 !important;
-    border: 1px solid #DEDCCD !important;
-    border-radius: 7px !important;
-    color: var(--text) !important;
-}
-
-.stTextInput input:focus,
-.stTextArea textarea:focus {
-    border-color: var(--green2) !important;
-    box-shadow: 0 0 0 1px var(--green2) !important;
-}
-
-.stSelectbox div[data-baseweb="select"] > div {
-    background: #FFFDF8;
-    border-color: #DEDCCD;
-    border-radius: 7px;
-    color: var(--text);
-}
-
-/* Buttons */
-
-.stButton button {
-    background: var(--green);
-    color: #FFFFFF !important;
-    border: 1px solid var(--green);
-    border-radius: 6px;
-    min-height: 42px;
+.brand-sub {
+    color: var(--gold);
+    font-size: 9px;
+    letter-spacing: 3px;
     font-weight: 600;
-    transition: all .2s ease;
+    margin-top: -3px;
 }
 
-.stButton button:hover {
-    background: var(--green2);
-    border-color: var(--green2);
-    color: white !important;
-    transform: translateY(-1px);
+.top-nav {
+    display: flex;
+    justify-content: flex-end;
+    gap: 30px;
+    align-items: center;
+    padding-top: 12px;
+    color: #59645D;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
 }
 
-/* Dividers */
-
-hr {
-    border-color: var(--line) !important;
+.nav-active {
+    color: var(--green);
+    border-bottom: 2px solid var(--gold);
+    padding-bottom: 8px;
 }
 
-/* Main hero */
+/* Hero */
 
 .hero {
-    position: relative;
+    background: var(--dark);
+    border-radius: 5px;
     overflow: hidden;
-    background:
-        radial-gradient(circle at 85% 20%, rgba(190,163,103,.22), transparent 27%),
-        linear-gradient(115deg, #173C30 0%, #214D3D 65%, #315D48 100%);
-    border-radius: 12px;
-    padding: 43px 42px;
-    min-height: 265px;
+    margin-top: 25px;
+    position: relative;
+    min-height: 420px;
+}
+
+.hero-inner {
+    padding: 58px 55px;
     color: white;
-    margin: 24px 0 30px 0;
-    border: 1px solid rgba(180,154,101,.35);
 }
 
-.hero::after {
-    content: "";
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    right: -85px;
-    top: -120px;
-    border: 1px solid rgba(225,208,164,.25);
-    border-radius: 50%;
-    box-shadow:
-      0 0 0 25px rgba(255,255,255,.025),
-      0 0 0 55px rgba(255,255,255,.02);
-}
-
-.hero-eyebrow {
-    color: #D8C79D;
+.eyebrow {
+    color: #D1B98B;
     font-size: 10px;
     letter-spacing: 3px;
     font-weight: 700;
+    text-transform: uppercase;
 }
 
 .hero-title {
     font-family: 'Playfair Display', serif;
-    font-size: clamp(30px, 4vw, 48px);
+    font-size: clamp(38px, 5vw, 65px);
     line-height: 1.12;
-    color: #FFFFFF;
-    margin-top: 17px;
-    max-width: 650px;
+    color: #F8F5ED;
+    font-weight: 500;
+    margin: 24px 0 17px 0;
 }
 
-.hero-description {
-    font-size: 13px;
-    color: #D6E0D7;
-    margin-top: 15px;
-    line-height: 1.8;
-    max-width: 550px;
+.hero-copy {
+    font-size: 14px;
+    color: #D0D9D2;
+    line-height: 1.9;
+    max-width: 440px;
 }
 
-.hero-stamp {
-    position: absolute;
-    right: 45px;
-    bottom: 34px;
-    z-index: 1;
-    border: 1px solid rgba(221,201,151,.55);
-    color: #E6D4A8;
-    border-radius: 50%;
-    width: 116px;
-    height: 116px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-family: 'Playfair Display', serif;
-    font-size: 15px;
-    line-height: 1.3;
-}
-
-/* Section titles */
-
-.section-heading {
-    font-family: 'Playfair Display', serif;
-    font-size: 25px;
+.hero-note {
+    margin-top: 34px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #D1B98B;
     font-weight: 600;
-    color: var(--green);
 }
 
-.section-subtitle {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 5px;
-}
+/* Section */
 
-/* Metric cards */
-
-.metric {
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 19px;
-    min-height: 112px;
-}
-
-.metric-label {
-    color: var(--muted);
+.section-kicker {
+    color: var(--gold);
     font-size: 10px;
-    letter-spacing: 1.2px;
     font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
 }
 
-.metric-value {
+.section-title {
     font-family: 'Playfair Display', serif;
-    font-size: 26px;
+    font-size: 34px;
+    font-weight: 500;
     color: var(--green);
-    margin-top: 12px;
+    margin-top: 7px;
 }
 
-.metric-note {
-    font-size: 10px;
+.section-description {
     color: var(--muted);
-    margin-top: 3px;
+    font-size: 13px;
+    line-height: 1.8;
 }
 
 /* Category cards */
 
-.category {
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 19px;
-    min-height: 160px;
-    transition: all .2s ease;
-}
-
-.category:hover {
-    border-color: var(--gold);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 22px rgba(34,55,42,.06);
-}
-
-.category-symbol {
-    width: 43px;
-    height: 43px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    color: var(--green);
-    background: #EAEDE2;
-}
-
 .category-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
     color: var(--green);
-    font-size: 14px;
-    font-weight: 700;
+    margin-top: 13px;
+}
+
+.category-copy {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.category-line {
+    height: 1px;
+    background: #D9D5C9;
     margin-top: 15px;
 }
 
-.category-caption {
-    font-size: 10px;
-    color: var(--muted);
-    margin-top: 5px;
-    line-height: 1.5;
+/* Workspace */
+
+.workspace {
+    background: white;
+    border: 1px solid #E8E4D9;
+    padding: 28px;
+    min-height: 190px;
 }
 
-/* Feature panels */
-
-.feature {
-    background: #FFFDF8;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 22px;
-    min-height: 148px;
-}
-
-.feature-mark {
-    color: var(--gold);
-    font-size: 21px;
-}
-
-.feature-title {
+.workspace-title {
     font-family: 'Playfair Display', serif;
-    font-size: 18px;
     color: var(--green);
-    margin-top: 12px;
+    font-size: 22px;
 }
 
-.feature-copy {
-    font-size: 11px;
+.workspace-copy {
     color: var(--muted);
-    line-height: 1.7;
-    margin-top: 7px;
+    font-size: 12px;
+    line-height: 1.8;
 }
 
-.small-label {
-    color: var(--gold);
-    font-size: 9px;
-    letter-spacing: 1.7px;
-    font-weight: 700;
-}
+/* Footer */
 
 .footer {
-    border-top: 1px solid var(--line);
-    margin-top: 48px;
-    padding-top: 18px;
-    color: #929589;
-    font-size: 9px;
-    letter-spacing: 1.5px;
-    text-align: center;
+    border-top: 1px solid #DCD8CE;
+    padding-top: 22px;
+    margin-top: 55px;
+    color: #85877E;
+    font-size: 10px;
+    letter-spacing: 1px;
+}
+
+/* Buttons */
+
+.stButton > button {
+    background: var(--green);
+    color: white;
+    border: 1px solid var(--green);
+    border-radius: 2px;
+    padding: 12px 24px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    min-height: 43px;
+}
+
+.stButton > button:hover {
+    background: #294D40;
+    border-color: #294D40;
+    color: white;
+}
+
+div[data-testid="stImage"] img {
+    border-radius: 2px;
+}
+
+hr {
+    border-color: #DEDACF;
 }
 
 @media(max-width: 700px) {
-    .hero {
-        padding: 28px 23px;
+    .hero-inner {
+        padding: 35px 25px;
     }
-    .hero-stamp {
-        display: none;
+    .section-title {
+        font-size: 28px;
     }
 }
 </style>
 """, unsafe_allow_html=True)
 
 
-# ---------------------- UI HELPERS ------------------------
+# --------------------------------------------------
+# HEADER
+# --------------------------------------------------
 
-def heading(title, subtitle=""):
-    st.markdown(f"""
-    <div style="margin:12px 0 19px 0;">
-      <div class="section-heading">{title}</div>
-      <div class="section-subtitle">{subtitle}</div>
-    </div>
-    """, unsafe_allow_html=True)
+header_left, header_right = st.columns([1, 2])
 
-
-def metric(label, value, note):
-    st.markdown(f"""
-    <div class="metric">
-      <div class="metric-label">{label}</div>
-      <div class="metric-value">{value}</div>
-      <div class="metric-note">{note}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-
-def category(symbol, title, description):
-    st.markdown(f"""
-    <div class="category">
-      <div class="category-symbol">{symbol}</div>
-      <div class="category-name">{title}</div>
-      <div class="category-caption">{description}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-
-def feature(symbol, title, description):
-    st.markdown(f"""
-    <div class="feature">
-      <div class="feature-mark">{symbol}</div>
-      <div class="feature-title">{title}</div>
-      <div class="feature-copy">{description}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-
-# ---------------------- SIDEBAR ----------------------------
-
-with st.sidebar:
-
+with header_left:
     st.markdown("""
-    <div style="padding:8px 3px 29px 3px;">
-      <div style="font-family:'Playfair Display',serif;
-                  font-size:27px;color:#F7F4E9;
-                  letter-spacing:2px;">
-        SAHARA
-      </div>
-      <div style="font-size:9px;color:#D6C394;
-                  letter-spacing:3px;margin-top:2px;">
-        UK FOODS LTD
-      </div>
-      <div style="height:1px;background:rgba(221,208,173,.35);
-                  margin-top:21px;"></div>
-      <div style="font-size:9px;color:#B7C7B8;
-                  letter-spacing:2px;margin-top:19px;">
-        TRADE INTELLIGENCE
-      </div>
+    <div class="brand">SAHARA</div>
+    <div class="brand-sub">UK FOODS · EST. 2017</div>
+    """, unsafe_allow_html=True)
+
+with header_right:
+    st.markdown("""
+    <div class="top-nav">
+        <span class="nav-active">OVERVIEW</span>
+        <span>PRODUCTS</span>
+        <span>SPECIFICATIONS</span>
+        <span>INTELLIGENCE</span>
+        <span>DOCUMENTS</span>
     </div>
     """, unsafe_allow_html=True)
 
-    page = st.radio(
-        "NAVIGATION",
-        [
-            "Overview",
-            "Product Catalogue",
-            "Specifications",
-            "Intelligence",
-            "Comparisons",
-            "Compliance",
-            "Documents",
-            "About Sahara"
-        ],
-        label_visibility="collapsed"
+st.markdown("<br>", unsafe_allow_html=True)
+
+
+# --------------------------------------------------
+# HERO
+# --------------------------------------------------
+
+hero_left, hero_right = st.columns([1.05, 0.95], gap="small")
+
+with hero_left:
+    st.markdown("""
+    <div class="hero" style="height:420px;">
+        <div class="hero-inner">
+            <div class="eyebrow">SAHARA PRODUCT INTELLIGENCE</div>
+            <div class="hero-title">
+                Naturally<br>
+                exceptional.<br>
+                Precisely specified.
+            </div>
+            <div class="hero-copy">
+                A smarter way to understand product quality,
+                specifications and documentation across
+                our global food portfolio.
+            </div>
+            <div class="hero-note">
+                QUALITY · TRANSPARENCY · CONFIDENCE
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with hero_right:
+    st.image(
+        "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716",
+        use_container_width=True,
+        height=420
     )
 
-    st.markdown("""
-    <div style="margin-top:40px;padding:14px 12px;
-        border:1px solid rgba(218,202,157,.25);
-        border-radius:7px;background:rgba(255,255,255,.045);">
-      <div style="font-family:'Playfair Display',serif;
-                  font-size:15px;color:#E5D4AA;">
-        Naturally exceptional.
-      </div>
-      <div style="font-size:10px;color:#C2D0C4;
-                  margin-top:7px;line-height:1.7;">
-        A refined workspace for product specifications
-        and food commodity intelligence.
-      </div>
-    </div>
 
-    <div style="font-size:9px;color:#A6B8A8;
-                text-align:center;margin-top:28px;
-                letter-spacing:1.5px;">
-        SAHARA UK FOODS LTD
-    </div>
-    """, unsafe_allow_html=True)
+# --------------------------------------------------
+# INTRODUCTION
+# --------------------------------------------------
+
+st.markdown("<br><br>", unsafe_allow_html=True)
+
+st.markdown("""
+<div class="section-kicker">OUR PRODUCT COLLECTION</div>
+<div class="section-title">Explore our world of ingredients</div>
+<div class="section-description">
+Carefully sourced products. Detailed specifications.
+A complete view of the ingredients we trade.
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown("<br>", unsafe_allow_html=True)
 
 
-# ---------------------- MAIN HEADER -----------------------
+# --------------------------------------------------
+# PRODUCT CATEGORIES
+# --------------------------------------------------
 
-left, right = st.columns([3, 1])
+categories = [
+    {
+        "name": "Dates",
+        "description": "Premium varieties, pitted dates, chopped dates and date ingredients.",
+        "image": "https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e"
+    },
+    {
+        "name": "Nuts",
+        "description": "Almonds, pistachios, walnuts, cashews and more.",
+        "image": "https://images.unsplash.com/photo-1508061253366-f7da158b6d46"
+    },
+    {
+        "name": "Dried Fruits",
+        "description": "Apricots, figs, raisins and carefully selected dried fruits.",
+        "image": "https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e"
+    },
+    {
+        "name": "Ingredients",
+        "description": "Date paste, date syrup and other food manufacturing ingredients.",
+        "image": "https://images.unsplash.com/photo-1601050690597-df0568f70950"
+    }
+]
 
-with left:
-    st.markdown("""
-    <div style="padding:3px 0 10px 0;">
-      <div class="small-label">SAHARA UK FOODS &nbsp; / &nbsp; INTELLIGENCE</div>
-      <div style="font-family:'Playfair Display',serif;
-                  font-size:27px;color:#193D32;
-                  margin-top:5px;">
-        The Specification Workspace
-      </div>
-      <div style="font-size:11px;color:#858D81;margin-top:4px;">
-        A clearer view of every product, every detail.
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
+cols = st.columns(4, gap="medium")
 
-with right:
-    st.markdown("""
-    <div style="text-align:right;padding-top:9px;">
-      <div style="font-size:9px;color:#858D81;
-                  letter-spacing:1.5px;">WORKSPACE</div>
-      <div style="font-family:'Playfair Display',serif;
-                  font-size:17px;color:#193D32;">
-        Sahara
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-
-# ---------------------- OVERVIEW --------------------------
-
-if page == "Overview":
-
-    st.markdown("""
-    <div class="hero">
-      <div class="hero-eyebrow">
-        PREMIUM FOOD COMMODITIES &nbsp; · &nbsp; PRODUCT INTELLIGENCE
-      </div>
-      <div class="hero-title">
-        Naturally exceptional.<br>
-        Precisely specified.
-      </div>
-      <div class="hero-description">
-        One considered workspace for Sahara's world of dates,
-        nuts and dried fruits — bringing product information
-        and specification intelligence together.
-      </div>
-      <div class="hero-stamp">
-        QUALITY<br>IN EVERY<br>DETAIL
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    heading(
-        "Your portfolio at a glance",
-        "A central view of the Sahara product and specification workspace."
-    )
-
-    c1, c2, c3, c4 = st.columns(4)
-
-    with c1:
-        metric("PRODUCT RECORDS", "—", "Connected database")
-
-    with c2:
-        metric("SPECIFICATION FILES", "—", "Original PDF library")
-
-    with c3:
-        metric("PRODUCT CATEGORIES", "—", "Portfolio classification")
-
-    with c4:
-        metric("INTELLIGENCE", "READY", "Workspace interface")
-
-    heading(
-        "Explore our product world",
-        "A considered collection of the categories at the heart of our business."
-    )
-
-    a, b, c, d = st.columns(4)
-
-    with a:
-        category("D", "Dates", "Pitted, chopped and whole dates.")
-
-    with b:
-        category("N", "Nuts", "Almonds, pistachios and more.")
-
-    with c:
-        category("F", "Dried Fruits", "Apricots, figs and raisins.")
-
-    with d:
-        category("I", "Ingredients", "Natural ingredients and food products.")
-
-    heading(
-        "Intelligence & operations",
-        "Your tools for understanding and managing product information."
-    )
-
-    x, y, z = st.columns(3)
-
-    with x:
-        feature(
-            "01",
-            "Product Specifications",
-            "Explore product records and access specification information."
+for col, item in zip(cols, categories):
+    with col:
+        st.image(item["image"], use_container_width=True)
+        st.markdown(
+            f'<div class="category-name">{item["name"]}</div>',
+            unsafe_allow_html=True
         )
-
-    with y:
-        feature(
-            "02",
-            "Specification Intelligence",
-            "Find important details and trace them back to their source."
-        )
-
-    with z:
-        feature(
-            "03",
-            "Product Comparison",
-            "Review product parameters side by side."
-        )
-
-    x, y, z = st.columns(3)
-
-    with x:
-        feature(
-            "04",
-            "Compliance Review",
-            "Review documented declarations and quality information."
-        )
-
-    with y:
-        feature(
-            "05",
-            "Document Library",
-            "Keep original product documents accessible."
-        )
-
-    with z:
-        feature(
-            "06",
-            "Portfolio Management",
-            "A central view of the product information workspace."
+        st.markdown(
+            f'<div class="category-copy">{item["description"]}</div>'
+            '<div class="category-line"></div>',
+            unsafe_allow_html=True
         )
 
 
-# ---------------------- PRODUCT CATALOGUE -----------------
+# --------------------------------------------------
+# INTELLIGENCE WORKSPACE
+# --------------------------------------------------
 
-elif page == "Product Catalogue":
+st.markdown("<br><br>", unsafe_allow_html=True)
 
-    heading(
-        "The Product Collection",
-        "Explore the categories that define the Sahara portfolio."
-    )
+st.markdown("""
+<div class="section-kicker">THE SAHARA WORKSPACE</div>
+<div class="section-title">Everything about your product. In one place.</div>
+<div class="section-description">
+A unified environment for specifications, quality information
+and supporting documents.
+</div>
+""", unsafe_allow_html=True)
 
-    st.text_input(
-        "Search the collection",
-        placeholder="Search by product name or product code..."
-    )
+st.markdown("<br>", unsafe_allow_html=True)
 
-    a, b, c, d = st.columns(4)
+w1, w2, w3 = st.columns(3, gap="medium")
 
-    with a:
-        category("D", "Dates", "Whole, pitted and chopped.")
-
-    with b:
-        category("N", "Nuts", "A selection of natural nuts.")
-
-    with c:
-        category("F", "Dried Fruits", "Naturally dried selections.")
-
-    with d:
-        category("I", "Ingredients", "Other food ingredients.")
-
-    st.info("Product records will be connected in the data integration phase.")
-
-
-# ---------------------- SPECIFICATIONS --------------------
-
-elif page == "Specifications":
-
-    heading(
-        "Specification Library",
-        "A considered view of product documentation and technical details."
-    )
-
-    st.text_input(
-        "Find a specification",
-        placeholder="Enter product code or product name..."
-    )
-
+with w1:
     st.markdown("""
-    <div class="feature">
-      <div class="feature-title">Original Product Documentation</div>
-      <div class="feature-copy">
-        Product specifications, technical documents and supporting
-        evidence will appear in this workspace.
-      </div>
+    <div class="workspace">
+        <div class="section-kicker">01 · PRODUCT DATA</div>
+        <div class="workspace-title">Product Catalogue</div>
+        <p class="workspace-copy">
+        Browse products, identify product codes and access
+        the relevant specification records.
+        </p>
     </div>
     """, unsafe_allow_html=True)
 
-    st.info("PDF library connection will be restored in the integration phase.")
-
-
-# ---------------------- INTELLIGENCE ----------------------
-
-elif page == "Intelligence":
-
-    heading(
-        "Specification Intelligence",
-        "A focused workspace for product specification questions."
-    )
-
+with w2:
     st.markdown("""
-    <div class="hero" style="min-height:190px;padding:30px;">
-      <div class="hero-eyebrow">PRODUCT KNOWLEDGE</div>
-      <div class="hero-title" style="font-size:31px;">
-        Every detail matters.
-      </div>
-      <div class="hero-description">
-        Search product specifications, quality parameters,
-        allergens and nutritional information.
-      </div>
+    <div class="workspace">
+        <div class="section-kicker">02 · DOCUMENTATION</div>
+        <div class="workspace-title">Specification Library</div>
+        <p class="workspace-copy">
+        Access original product specifications, technical
+        documents and supporting PDF files.
+        </p>
     </div>
     """, unsafe_allow_html=True)
 
-    st.text_area(
-        "Your specification question",
-        placeholder="Example: What are the aflatoxin B1 and total aflatoxin values?"
-    )
-
-    st.button("Analyse Specification", use_container_width=True)
-
-    st.caption("Design preview only. Answers are not generated in this prototype.")
-
-
-# ---------------------- COMPARISONS -----------------------
-
-elif page == "Comparisons":
-
-    heading(
-        "Product Comparison",
-        "A clear side-by-side view of selected product specifications."
-    )
-
-    a, b = st.columns(2)
-
-    with a:
-        st.selectbox("First product", ["Select product"])
-
-    with b:
-        st.selectbox("Second product", ["Select product"])
-
-    st.info("Product comparison will be connected in the integration phase.")
-
-
-# ---------------------- COMPLIANCE ------------------------
-
-elif page == "Compliance":
-
-    heading(
-        "Compliance & Quality",
-        "A structured view of documented product information."
-    )
-
-    a, b = st.columns(2)
-
-    with a:
-        feature(
-            "01",
-            "Allergen Declarations",
-            "Contains, may contain, free-from and not declared."
-        )
-
-    with b:
-        feature(
-            "02",
-            "Quality Parameters",
-            "Review documented analytical and quality parameters."
-        )
-
-    st.info("Compliance records will be connected in the integration phase.")
-
-
-# ---------------------- DOCUMENTS -------------------------
-
-elif page == "Documents":
-
-    heading(
-        "Document Centre",
-        "A central home for original product documents."
-    )
-
-    st.info("Document library integration will be connected in the next phase.")
-
-
-# ---------------------- ABOUT -----------------------------
-
-elif page == "About Sahara":
-
-    heading(
-        "About Sahara UK Foods",
-        "A premium food trading business and its intelligence workspace."
-    )
-
+with w3:
     st.markdown("""
-    <div class="hero">
-      <div class="hero-eyebrow">SAHARA UK FOODS LTD</div>
-      <div class="hero-title">A world of natural ingredients.</div>
-      <div class="hero-description">
-        Dates, nuts and dried fruits — supported by a dedicated
-        product specification and intelligence workspace.
-      </div>
+    <div class="workspace">
+        <div class="section-kicker">03 · ANALYSIS</div>
+        <div class="workspace-title">Product Intelligence</div>
+        <p class="workspace-copy">
+        Find documented quality values, allergens,
+        nutritional information and compliance evidence.
+        </p>
     </div>
     """, unsafe_allow_html=True)
 
 
-# ---------------------- FOOTER ----------------------------
+# --------------------------------------------------
+# BRAND STATEMENT
+# --------------------------------------------------
+
+st.markdown("<br><br>", unsafe_allow_html=True)
+
+st.markdown("""
+<div style="
+    background:#19382F;
+    padding:42px 35px;
+    text-align:center;
+    border-radius:3px;
+">
+    <div style="
+        font-family:'Playfair Display',serif;
+        color:#F6F2E8;
+        font-size:30px;
+    ">
+        Quality begins with knowing.
+    </div>
+    <div style="
+        color:#D0C3A7;
+        font-size:11px;
+        letter-spacing:2px;
+        margin-top:12px;
+    ">
+        SAHARA UK FOODS
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+
+# --------------------------------------------------
+# FOOTER
+# --------------------------------------------------
 
 st.markdown("""
 <div class="footer">
-    SAHARA UK FOODS LTD
-    &nbsp; · &nbsp;
-    PRODUCT SPECIFICATION INTELLIGENCE
-    &nbsp; · &nbsp;
-    ENGLISH INTERFACE
+    <span>SAHARA UK FOODS LTD</span>
+    <span style="float:right;">PRODUCT INTELLIGENCE PLATFORM</span>
 </div>
 """, unsafe_allow_html=True)
