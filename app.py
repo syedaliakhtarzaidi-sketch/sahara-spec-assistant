@@ -648,6 +648,4 @@ st.markdown(
     unsafe_allow_html=True,
 )
 '''
-path = Path("/mnt/data/app.py")
-path.write_text(code, encoding="utf-8")
-print(f"Created {path} ({len(code.splitlines())} lines)")
+
