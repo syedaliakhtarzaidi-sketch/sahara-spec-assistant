@@ -324,6 +324,8 @@ def classify_spec_question(question):
     q = question.casefold()
     if any(x in q for x in ["insect damage", "insect-damage", "damage by insect", "insect infestation"]):
         return "insect_damage"
+    if any(x in q for x in ["peroxide value", "peroxide-value", "peroxide number"]):
+        return "peroxide_value"
     if any(x in q for x in ["aflatoxin", "b1", "b2", "g1", "g2"]):
         return "aflatoxin"
     if any(x in q for x in ["ingredient", "composition", "made of", "contains"]):
@@ -386,17 +388,35 @@ def build_structured_answer(question, pages):
 
     if kind == "insect_damage":
         for index, (page_no, line) in enumerate(lines):
-            if re.search(r"insect\\s+damage|damage\\s+by\\s+insects?|insect\\s+infestation", line, re.I):
-                label_pattern = r"insect\\s+damage|damage\\s+by\\s+insects?|insect\\s+infestation"
+            if re.search(r"insect\s+damage|damage\s+by\s+insects?|insect\s+infestation", line, re.I):
+                label_pattern = r"insect\s+damage|damage\s+by\s+insects?|insect\s+infestation"
                 result = re.sub(label_pattern, "", line, count=1, flags=re.I)
-                result = re.sub(r"^[\\s:：=|–-]+", "", result).strip()
-                if not re.search(r"(\\d+(?:[.,]\\d+)?\\s*%?|not detected|absent|nil|none|<|>)", result, re.I):
+                result = re.sub(r"^[\s:：=|–-]+", "", result).strip()
+                if not re.search(r"(\d+(?:[.,]\d+)?\s*%?|not detected|absent|nil|none|<|>)", result, re.I):
                     for next_page, next_line in lines[index + 1:index + 3]:
-                        if re.search(r"(\\d+(?:[.,]\\d+)?\\s*%?|not detected|absent|nil|none|<|>)", next_line, re.I):
+                        if next_page == page_no and re.search(r"(\d+(?:[.,]\d+)?\s*%?|not detected|absent|nil|none|<|>)", next_line, re.I):
                             page_no, result = next_page, next_line.strip()
                             break
-                result = re.sub(r"^[^:：=|]*[:：=|]\\s*", "", result).strip()
+                result = re.sub(r"^[^:：=|]*[:：=|]\s*", "", result).strip()
                 return {"kind": kind, "rows": [("Insect Damage", (page_no, result or line))]}
+        return {"kind": kind, "rows": []}
+
+    if kind == "peroxide_value":
+        label_pattern = r"\bperoxide\s*value\b|\bperoxide\s*number\b"
+        value_pattern = r"(\d+(?:[.,]\d+)?|not detected|nd\b|<|>|≤|≥)"
+        for index, (page_no, line) in enumerate(lines):
+            if re.search(label_pattern, line, re.I):
+                result = re.sub(label_pattern, "", line, count=1, flags=re.I)
+                result = re.sub(r"^[\s:：=|–-]+", "", result).strip()
+                if not re.search(value_pattern, result, re.I):
+                    for next_page, next_line in lines[index + 1:index + 3]:
+                        if next_page == page_no and re.search(value_pattern, next_line, re.I):
+                            result = next_line.strip()
+                            break
+                result = re.sub(r"^[\s:：=|()\-–]+", "", result).strip()
+                if result:
+                    return {"kind": kind, "rows": [("Peroxide Value", (page_no, result))]}
+                return {"kind": kind, "rows": []}
         return {"kind": kind, "rows": []}
 
     if kind == "aflatoxin":
@@ -661,6 +681,16 @@ elif page == "AI Assistant":
                                         })
 
                             elif answer["kind"] == "insect_damage":
+                                for label, hit in answer.get("rows", []):
+                                    page_no, source_result = hit
+                                    source_pages.add(page_no)
+                                    result_rows.append({
+                                        "Parameter": label,
+                                        "Supplier Result": source_result,
+                                        "PDF Page": page_no,
+                                    })
+
+                            elif answer["kind"] == "peroxide_value":
                                 for label, hit in answer.get("rows", []):
                                     page_no, source_result = hit
                                     source_pages.add(page_no)
