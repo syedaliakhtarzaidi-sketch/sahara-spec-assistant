@@ -135,7 +135,24 @@ def render_original_pdf(pdf_path):
         if not hasattr(st, "pdf"):
             st.error("The PDF viewer requires a newer Streamlit version. Please refresh the app after deployment.")
         else:
-            st.pdf(pdf_bytes, height=820)
+            # Use the full available content width and a taller reading area.
+            st.markdown(
+                """
+                <style>
+                [data-testid="stPdf"],
+                [data-testid="stPdf"] iframe {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    border: 0 !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    display: block !important;
+                }
+                </style>
+                """,
+                unsafe_allow_html=True,
+            )
+            st.pdf(pdf_bytes, height=1100, width="stretch")
 
         st.download_button(
             "Download Original PDF",
