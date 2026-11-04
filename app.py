@@ -622,7 +622,7 @@ elif page == "Product Intelligence":
             all_pdf_codes = {
                 match.group(1).replace(" ", "").upper()
                 for path in pdf_files
-                if (match := re.search(r"(SUFL\\s*\\d+)", path.stem, re.IGNORECASE))
+                if (match := re.search(r"(SUFL\s*\d+)", path.stem, re.IGNORECASE))
             }
             missing_pdf_count = sum(
                 pdf_lookup.get(str(code)) is None for code in products["Product Code"]
