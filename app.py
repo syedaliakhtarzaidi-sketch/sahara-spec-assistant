@@ -286,6 +286,25 @@ def build_structured_answer(question, pages):
                 found.append((page_no, line))
         return found
 
+    if kind == "microbiology":
+        tests = [
+            ("Yeast & Mould", [r"yeast\\s*(?:&|and)\\s*mou?ld", r"yeast", r"mou?ld"]),
+            ("Total Coliforms", [r"total\\s+coliform", r"coliform"]),
+            ("Salmonella", [r"salmonella"]),
+            ("E. coli", [r"e\\.?\\s*coli"]),
+        ]
+        results = []
+        for label, patterns in tests:
+            hits = matching(patterns)
+            # Keep only a source line that contains an actual result, not a section heading.
+            useful = [(p, t) for p, t in hits if re.search(
+                r"(\\d+(?:[.,]\\d+)?\\s*(?:cfu|m|g|kg|ppm|ppb)|absent|not detected|negative|positive|nd\\b|<|>|≤|≥)",
+                t, re.I
+            )]
+            if useful:
+                results.append((label, useful[0]))
+        return {"kind": kind, "rows": results}
+
     if kind == "aflatoxin":
         fields = [
             ("Aflatoxin B1", [r"\baflatoxin\s*[-:]?\s*b1\b", r"\bB1\b"]),
@@ -534,23 +553,29 @@ elif page == "AI Assistant":
                                     st.caption(f"Source: supplier PDF · Page {page_no}")
                             else:
                                 st.warning("Ingredients are not stated in the searchable text of this specification.")
-                        elif answer.get("hits"):
-                            st.markdown("#### Specification answer")
-                            st.caption("Relevant supplier-stated information. Values are quoted as written; nothing is calculated.")
-                            for page_no, source_line in answer["hits"]:
-                                with st.container(border=True):
-                                    st.write(source_line)
-                                    st.caption(f"Source: supplier PDF · Page {page_no}")
-                        else:
-                            st.warning("This information was not found in the searchable text of this supplier PDF. No value has been assumed.")
-                        with st.expander("View supporting PDF evidence"):
-                            matches = find_specification_evidence(question, pages)
-                            if matches:
-                                for item in matches[:5]:
-                                    st.markdown(f"**PDF page {item['page']}**")
-                                    st.write(item["context"])
+                        elif answer["kind"] == "microbiology":
+                            if answer.get("rows"):
+                                st.markdown("#### Microbiological Properties")
+                                table_rows = []
+                                source_pages = set()
+                                for label, hit in answer["rows"]:
+                                    page_no, source_line = hit
+                                    source_pages.add(page_no)
+                                    result = re.sub(
+                                        r"^.*?" + re.escape(label).replace(r"\\ ", r"\\s+") + r"\\s*[:：-]?\\s*",
+                                        "", source_line, flags=re.I
+                                    ).strip()
+                                    table_rows.append({"Parameter": label, "Result": result or source_line})
+                                st.dataframe(pd.DataFrame(table_rows), hide_index=True, use_container_width=True)
+                                st.caption("Source: Supplier PDF · Page " + ", ".join(map(str, sorted(source_pages))))
                             else:
-                                st.caption("No matching supporting excerpt was found.")
+                                st.warning("Microbiological results not found in this specification.")
+                        elif answer.get("hits"):
+                            for page_no, source_line in answer["hits"]:
+                                st.write(source_line)
+                                st.caption(f"Source: Supplier PDF · Page {page_no}")
+                        else:
+                            st.warning("Information not found in this supplier specification.")
             with st.expander("Open original supplier PDF"):
                 render_original_pdf(chosen_pdf)
 
