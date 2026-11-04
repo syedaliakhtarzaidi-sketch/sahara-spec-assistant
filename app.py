@@ -563,13 +563,13 @@ elif page == "AI Assistant":
                                         page_no, source_line = hit
                                         source_pages.add(page_no)
                                         label_pattern = {
-                                            "Yeast & Mould": r"yeast\\s*(?:&|and)\\s*mou?ld",
-                                            "Total Coliforms": r"(?:total\\s+)?coliforms?",
+                                            "Yeast & Mould": r"yeast\s*(?:&|and)\s*mou?ld",
+                                            "Total Coliforms": r"(?:total\s+)?coliforms?",
                                             "Salmonella": r"salmonella",
-                                            "E. coli": r"e\\.?\\s*coli",
+                                            "E. coli": r"e\.?\s*coli",
                                         }[label]
                                         match = re.search(label_pattern, source_line, re.I)
-                                        result = source_line[match.end():].strip(" \\t:：-") if match else source_line
+                                        result = source_line[match.end():].strip(" \t:：-") if match else source_line
                                         table_rows.append((label, result or source_line))
                                     rows_html = "".join(
                                         "<tr><td>" + html.escape(label) + "</td><td><strong>" +
