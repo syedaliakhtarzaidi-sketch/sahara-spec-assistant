@@ -667,7 +667,7 @@ elif page == "Product Intelligence":
             metric_cols = st.columns(4)
             for col, label, value in [
                 (metric_cols[0], "DATABASE RECORDS", len(products)),
-                (metric_cols[1], "SUPPLIER PDFs", len(pdf_files)),
+                (metric_cols[1], "SAHARA SPEC PDF", len(pdf_files)),
                 (metric_cols[2], "MISSING PDFs", missing_pdf_count),
                 (metric_cols[3], "PDFs WITHOUT RECORD", pdf_without_record_count),
             ]:
