@@ -529,7 +529,7 @@ elif page == "AI Assistant":
                             st.markdown("#### Ingredients")
                             if answer.get("hits"):
                                 for page_no, source_line in answer["hits"][:3]:
-                                    cleaned = re.sub(r"^.*?ingredients?\\s*", "", source_line, flags=re.I).strip(" :-")
+                                    cleaned = re.sub(r"^.*?ingredients?\s*", "", source_line, flags=re.I).strip(" :-")
                                     st.markdown(f"- {cleaned or source_line}")
                                     st.caption(f"Source: supplier PDF · Page {page_no}")
                             else:
