@@ -13,6 +13,24 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# -------------------- IMAGE SOURCES --------------------
+# Replace these URLs with verified product photographs
+# whenever a more suitable company image is available.
+
+DATES_IMAGE = (
+    "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716"
+    "?w=900&h=600&fit=crop"
+)
+
+NUTS_IMAGE = (
+    "https://images.unsplash.com/photo-1508061253366-f7da158b6d46"
+    "?w=900&h=600&fit=crop"
+)
+
+DRIED_FRUITS_IMAGE = (
+    "https://images.pexels.com/photos/10111853/pexels-photo-10111853.jpeg"
+)
+
 # -------------------- DESIGN SYSTEM --------------------
 
 st.markdown("""
@@ -250,7 +268,7 @@ if page == "Overview":
         with st.container(border=True):
 
             st.image(
-                "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=900&h=600&fit=crop",
+                DATES_IMAGE,
                 use_container_width=True
             )
 
@@ -265,7 +283,7 @@ if page == "Overview":
         with st.container(border=True):
 
             st.image(
-                "https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=900&h=600&fit=crop",
+                NUTS_IMAGE,
                 use_container_width=True
             )
 
@@ -280,7 +298,7 @@ if page == "Overview":
         with st.container(border=True):
 
             st.image(
-                "https://images.pexels.com/photos/10111853/pexels-photo-10111853.jpeg",
+                DRIED_FRUITS_IMAGE,
                 use_container_width=True
             )
 
