@@ -540,55 +540,66 @@ elif page == "AI Assistant":
                         answer = build_structured_answer(question, pages)
                         with st.container(border=True):
                             st.markdown("#### Specification Answer")
+                            result_rows = []
+                            source_pages = set()
+
                             if answer["kind"] == "aflatoxin":
-                                rows = []
-                                source_pages = set()
                                 for label, hit in answer["rows"]:
                                     if hit:
                                         page_no, source_line = hit
                                         source_pages.add(page_no)
-                                        rows.append({"Parameter": label, "Supplier result": source_line})
+                                        result_rows.append({
+                                            "Parameter": label,
+                                            "Supplier Result": source_line,
+                                            "PDF Page": page_no,
+                                        })
                                     else:
-                                        rows.append({"Parameter": label, "Supplier result": "Not found in specification"})
-                                st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+                                        result_rows.append({
+                                            "Parameter": label,
+                                            "Supplier Result": "Not found in specification",
+                                            "PDF Page": "—",
+                                        })
+
+                            elif answer["kind"] == "microbiology":
+                                for label, hit in answer.get("rows", []):
+                                    page_no, source_line = hit
+                                    source_pages.add(page_no)
+                                    label_pattern = {
+                                        "Yeast & Mould": r"yeasts?\s*(?:&|and)\s*mou?lds?",
+                                        "Total Coliforms": r"(?:total\s+)?coliforms?",
+                                        "Salmonella": r"salmonella(?:\s+spp\.?)?",
+                                        "E. coli": r"e\.?\s*coli",
+                                    }[label]
+                                    result = re.sub(label_pattern, "", source_line, count=1, flags=re.I)
+                                    result = re.sub(r"^[\s:：(),\-–]+", "", result).strip()
+                                    result = re.sub(r"\s*\)", "", result).strip()
+                                    result_rows.append({
+                                        "Parameter": label,
+                                        "Supplier Result": result or "See source PDF",
+                                        "PDF Page": page_no,
+                                    })
+
+                            else:
+                                for page_no, source_line in answer.get("hits", [])[:5]:
+                                    source_pages.add(page_no)
+                                    result_rows.append({
+                                        "Parameter": "Supplier specification",
+                                        "Supplier Result": source_line,
+                                        "PDF Page": page_no,
+                                    })
+
+                            if result_rows:
+                                answer_df = pd.DataFrame(
+                                    result_rows,
+                                    columns=["Parameter", "Supplier Result", "PDF Page"],
+                                )
+                                st.dataframe(
+                                    answer_df,
+                                    hide_index=True,
+                                    use_container_width=True,
+                                )
                                 if source_pages:
                                     st.caption("Source PDF page(s): " + ", ".join(map(str, sorted(source_pages))))
-                                else:
-                                    st.warning("No aflatoxin result was found in the searchable text of this PDF.")
-                            elif answer["kind"] == "microbiology":
-                                if answer.get("rows"):
-                                    table_rows = []
-                                    source_pages = set()
-                                    for label, hit in answer["rows"]:
-                                        page_no, source_line = hit
-                                        source_pages.add(page_no)
-                                        label_pattern = {
-                                            "Yeast & Mould": r"yeasts?\s*(?:&|and)\s*mou?lds?",
-                                            "Total Coliforms": r"(?:total\s+)?coliforms?",
-                                            "Salmonella": r"salmonella(?:\s+spp\.?)?",
-                                            "E. coli": r"e\.?\s*coli",
-                                        }[label]
-                                        result = re.sub(label_pattern, "", source_line, count=1, flags=re.I)
-                                        result = re.sub(r"^[\s:：()\-–]+", "", result).strip()
-                                        table_rows.append((label, result or "See source PDF"))
-                                    microbiology_df = pd.DataFrame(
-                                        table_rows,
-                                        columns=["Test Parameter", "Supplier Result"],
-                                    )
-                                    st.dataframe(
-                                        microbiology_df,
-                                        hide_index=True,
-                                        use_container_width=True,
-                                    )
-                                    st.caption("Source PDF page(s): " + ", ".join(map(str, sorted(source_pages))))
-                                else:
-                                    st.warning("Microbiological results not found in this specification.")
-                            elif answer.get("hits"):
-                                result_rows = [
-                                    {"Supplier information": source_line, "PDF page": page_no}
-                                    for page_no, source_line in answer["hits"][:5]
-                                ]
-                                st.dataframe(pd.DataFrame(result_rows), hide_index=True, use_container_width=True)
                             else:
                                 st.warning("Information not found in this supplier specification.")
             if chosen_pdf:
