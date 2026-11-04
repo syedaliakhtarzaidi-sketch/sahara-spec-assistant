@@ -127,25 +127,16 @@ def find_product_pdf(product_code, pdf_files):
 
 
 def render_original_pdf(pdf_path):
-    """Render the original PDF bytes; retain the exact source document."""
+    """Display the supplier's original PDF with Streamlit's native PDF viewer."""
     try:
         pdf_bytes = pdf_path.read_bytes()
-        encoded_pdf = base64.b64encode(pdf_bytes).decode("ascii")
-        components.html(
-            f"""
-            <div style="height:820px;width:100%;background:#ffffff;border-radius:10px;overflow:hidden;">
-              <iframe
-                src="data:application/pdf;base64,{encoded_pdf}"
-                type="application/pdf"
-                width="100%"
-                height="100%"
-                style="border:0;">
-              </iframe>
-            </div>
-            """,
-            height=835,
-            scrolling=False,
-        )
+
+        # Native Streamlit PDF viewer avoids Chrome blocking a data-URL iframe.
+        if not hasattr(st, "pdf"):
+            st.error("The PDF viewer requires a newer Streamlit version. Please refresh the app after deployment.")
+        else:
+            st.pdf(pdf_bytes, height=820)
+
         st.download_button(
             "Download Original PDF",
             data=pdf_bytes,
@@ -153,10 +144,9 @@ def render_original_pdf(pdf_path):
             mime="application/pdf",
             key=f"download_{pdf_path.name}",
         )
-        st.caption("This is the original supplier PDF. Its layout, tables, values and signatures are preserved.")
+        st.caption("Original supplier PDF — source layout, tables, values and signatures are preserved.")
     except Exception as error:
         st.error(f"Unable to display this PDF: {error}")
-        st.caption("You can still try downloading the original document if it is available.")
 
 
 def category_for_product(product_name):
