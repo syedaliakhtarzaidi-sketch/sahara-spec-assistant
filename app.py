@@ -74,6 +74,80 @@ div.stButton > button:hover, div.stDownloadButton > button:hover, [data-testid="
 hr { border-color:#294737; }
 .footer { color:#789282; font-size:11px; text-align:center; padding:25px 0; }
 .muted { color:#a9c0ae; font-size:12px; }
+
+/* Fixed premium answer panel — HTML table avoids the canvas-based dataframe renderer */
+.answer-heading {
+    padding: 4px 0 18px;
+    border-bottom: 1px solid #315340;
+    margin-bottom: 16px;
+}
+.answer-kicker {
+    color: #c9e58f;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 7px;
+}
+.answer-title {
+    color: #f2f7ed;
+    font-size: 23px;
+    line-height: 1.25;
+    font-weight: 800;
+}
+.answer-subtitle {
+    color: #a9c0ae;
+    font-size: 12px;
+    margin-top: 5px;
+}
+.answer-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #345442;
+    border-radius: 12px;
+    background: #0c2119;
+}
+.answer-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    color: #edf5ee;
+    font-size: 13px;
+}
+.answer-table th {
+    background: #1a3b2b;
+    color: #d9edaa;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #45634a;
+}
+.answer-table th:nth-child(1) { width: 25%; }
+.answer-table th:nth-child(2) { width: 60%; }
+.answer-table th:nth-child(3) { width: 15%; text-align: center; }
+.answer-table td {
+    padding: 15px 16px;
+    border-bottom: 1px solid #294536;
+    vertical-align: top;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+.answer-table tbody tr:last-child td { border-bottom: 0; }
+.answer-table tbody tr:nth-child(even) { background: #10291f; }
+.answer-parameter { color: #d9edaa; font-weight: 700; }
+.answer-result { color: #f0f5ef; }
+.answer-page { color: #b5c9b8; text-align: center; font-variant-numeric: tabular-nums; }
+.answer-source {
+    color: #9db5a4;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-top: 12px;
+}
+@media (max-width: 640px) {
+    .answer-table { min-width: 560px; }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -539,7 +613,16 @@ elif page == "AI Assistant":
                     else:
                         answer = build_structured_answer(question, pages)
                         with st.container(border=True):
-                            st.markdown("#### Specification Answer")
+                            st.markdown(
+                                """
+                                <div class="answer-heading">
+                                    <div class="answer-kicker">SAHARA UK FOODS · PRODUCT INTELLIGENCE</div>
+                                    <div class="answer-title">Specification Answer</div>
+                                    <div class="answer-subtitle">Extracted directly from the selected supplier specification</div>
+                                </div>
+                                """,
+                                unsafe_allow_html=True,
+                            )
                             result_rows = []
                             source_pages = set()
 
@@ -589,17 +672,31 @@ elif page == "AI Assistant":
                                     })
 
                             if result_rows:
-                                answer_df = pd.DataFrame(
-                                    result_rows,
-                                    columns=["Parameter", "Supplier Result", "PDF Page"],
+                                table_rows = []
+                                for row in result_rows:
+                                    parameter = html.escape(str(row.get("Parameter", "—")))
+                                    supplier_result = html.escape(str(row.get("Supplier Result", "—")))
+                                    pdf_page = html.escape(str(row.get("PDF Page", "—")))
+                                    table_rows.append(
+                                        "<tr>"
+                                        f"<td class='answer-parameter'>{parameter}</td>"
+                                        f"<td class='answer-result'>{supplier_result}</td>"
+                                        f"<td class='answer-page'>{pdf_page}</td>"
+                                        "</tr>"
+                                    )
+                                answer_table = (
+                                    "<div class='answer-table-wrap'><table class='answer-table'>"
+                                    "<thead><tr><th>TEST PARAMETER</th><th>SUPPLIER RESULT</th><th>PDF PAGE</th></tr></thead>"
+                                    "<tbody>" + "".join(table_rows) + "</tbody></table></div>"
                                 )
-                                st.dataframe(
-                                    answer_df,
-                                    hide_index=True,
-                                    use_container_width=True,
-                                )
+                                st.markdown(answer_table, unsafe_allow_html=True)
                                 if source_pages:
-                                    st.caption("Source PDF page(s): " + ", ".join(map(str, sorted(source_pages))))
+                                    st.markdown(
+                                        "<div class='answer-source'>SOURCE PDF PAGE(S): "
+                                        + html.escape(", ".join(map(str, sorted(source_pages))))
+                                        + "</div>",
+                                        unsafe_allow_html=True,
+                                    )
                             else:
                                 st.warning("Information not found in this supplier specification.")
             if chosen_pdf:
