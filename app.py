@@ -112,6 +112,10 @@ div[data-testid="stImage"] img { width:100%; height:215px; object-fit:cover; bor
     object-position: center center;
     border-radius: 12px;
 }
+/* Dried-fruit source image has extra whitespace; zoom its contents */
+.ingredient-image-frame.dried-fruits-image img {
+    transform: scale(1.28);
+}
 .answer-heading { padding:4px 0 18px; border-bottom:1px solid #e5e7df; margin-bottom:16px; }
 .answer-kicker { color:#a18148; font-size:9px; font-weight:800; letter-spacing:2px; margin-bottom:7px; }
 .answer-title { color:#183b2b; font-size:25px; line-height:1.25; font-weight:800; letter-spacing:-.6px; }
@@ -524,7 +528,8 @@ if page == "Overview":
         with col:
             with st.container(border=True):
                 st.markdown(
-                    f'<div class="ingredient-image-frame">'
+                    f'<div class="ingredient-image-frame'
+                    f'{" dried-fruits-image" if name == "Dried Fruits" else ""}">'
                     f'<img src="{html.escape(image, quote=True)}" '
                     f'alt="{html.escape(name, quote=True)}">'
                     f'</div>',
