@@ -1,5 +1,6 @@
 import base64
 import re
+import html
 from pathlib import Path
 from urllib.parse import quote
 
@@ -288,17 +289,16 @@ def build_structured_answer(question, pages):
 
     if kind == "microbiology":
         tests = [
-            ("Yeast & Mould", [r"yeast\\s*(?:&|and)\\s*mou?ld", r"yeast", r"mou?ld"]),
-            ("Total Coliforms", [r"total\\s+coliform", r"coliform"]),
+            ("Yeast & Mould", [r"yeast\s*(?:&|and)\s*mou?ld", r"yeast"]),
+            ("Total Coliforms", [r"total\s+coliform", r"coliform"]),
             ("Salmonella", [r"salmonella"]),
-            ("E. coli", [r"e\\.?\\s*coli"]),
+            ("E. coli", [r"e\.?\s*coli"]),
         ]
         results = []
         for label, patterns in tests:
             hits = matching(patterns)
-            # Keep only a source line that contains an actual result, not a section heading.
             useful = [(p, t) for p, t in hits if re.search(
-                r"(\\d+(?:[.,]\\d+)?\\s*(?:cfu|m|g|kg|ppm|ppb)|absent|not detected|negative|positive|nd\\b|<|>|≤|≥)",
+                r"(\d+(?:[.,]\d+)?\s*(?:cfu|m|g|kg|ppm|ppb)|absent|not detected|negative|positive|nd\b|<|>|≤|≥)",
                 t, re.I
             )]
             if useful:
@@ -561,12 +561,29 @@ elif page == "AI Assistant":
                                 for label, hit in answer["rows"]:
                                     page_no, source_line = hit
                                     source_pages.add(page_no)
-                                    result = re.sub(
-                                        r"^.*?" + re.escape(label).replace(r"\\ ", r"\\s+") + r"\\s*[:：-]?\\s*",
-                                        "", source_line, flags=re.I
-                                    ).strip()
-                                    table_rows.append({"Parameter": label, "Result": result or source_line})
-                                st.dataframe(pd.DataFrame(table_rows), hide_index=True, use_container_width=True)
+                                    label_pattern = {
+                                        "Yeast & Mould": r"yeast\s*(?:&|and)\s*mou?ld",
+                                        "Total Coliforms": r"(?:total\s+)?coliforms?",
+                                        "Salmonella": r"salmonella",
+                                        "E. coli": r"e\.?\s*coli",
+                                    }[label]
+                                    match = re.search(label_pattern, source_line, re.I)
+                                    result = source_line[match.end():].strip(" \t:：-") if match else source_line
+                                    table_rows.append((label, result or source_line))
+                                rows_html = "".join(
+                                    "<tr><td>" + html.escape(label) + "</td><td><strong>" +
+                                    html.escape(result) + "</strong></td></tr>"
+                                    for label, result in table_rows
+                                )
+                                st.markdown(
+                                    '<div style="border:1px solid #315442;border-radius:14px;overflow:hidden;background:#10291f;">'
+                                    '<div style="padding:13px 17px;background:#173b2b;color:#d9edaa;font-size:12px;font-weight:700;letter-spacing:1.2px;">TEST PARAMETER'
+                                    '<span style="float:right;">SUPPLIER RESULT</span></div>'
+                                    '<table style="width:100%;border-collapse:collapse;color:#edf5ee;font-size:14px;">'
+                                    + rows_html +
+                                    '</table></div>',
+                                    unsafe_allow_html=True,
+                                )
                                 st.caption("Source: Supplier PDF · Page " + ", ".join(map(str, sorted(source_pages))))
                             else:
                                 st.warning("Microbiological results not found in this specification.")
