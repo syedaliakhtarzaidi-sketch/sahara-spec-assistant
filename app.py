@@ -337,7 +337,8 @@ def build_structured_answer(question, pages):
         # Prefer the most informative, concise source line rather than returning every keyword hit.
         hits.sort(key=lambda x: (len(x[1]) < 20, len(x[1])))
         return {"kind": kind, "hits": hits[:5]}
-    return {"kind": "general", "hits": find_specification_evidence(question, pages)[:5]}
+    evidence = find_specification_evidence(question, pages)[:5]
+    return {"kind": "general", "hits": [(item["page"], item["text"]) for item in evidence]}
 
 
 def category_for_product(product_name):
