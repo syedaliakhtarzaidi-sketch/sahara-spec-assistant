@@ -13,23 +13,25 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# -------------------- IMAGE SOURCES --------------------
-# Replace these URLs with verified product photographs
-# whenever a more suitable company image is available.
+# -------------------- PRODUCT IMAGES --------------------
 
+# Verified Medjool dates photograph
 DATES_IMAGE = (
-    "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716"
-    "?w=900&h=600&fit=crop"
+    "https://commons.wikimedia.org/wiki/Special:FilePath/"
+    "DATES%20MEDJOOL.jpg"
 )
 
+# Nuts
 NUTS_IMAGE = (
     "https://images.unsplash.com/photo-1508061253366-f7da158b6d46"
     "?w=900&h=600&fit=crop"
 )
 
+# Dried fruits
 DRIED_FRUITS_IMAGE = (
     "https://images.pexels.com/photos/10111853/pexels-photo-10111853.jpeg"
 )
+
 
 # -------------------- DESIGN SYSTEM --------------------
 
@@ -71,7 +73,12 @@ html, body, [class*="css"] {
 }
 
 .hero {
-    background: linear-gradient(115deg, #173c2c, #102a20 70%, #1d422d);
+    background: linear-gradient(
+        115deg,
+        #173c2c,
+        #102a20 70%,
+        #1d422d
+    );
     border: 1px solid #31543d;
     border-radius: 22px;
     padding: 36px;
@@ -148,7 +155,8 @@ div.stButton > button:hover {
     color: #10291e;
 }
 
-.stTextInput input, .stTextArea textarea {
+.stTextInput input,
+.stTextArea textarea {
     background: #102b21;
     color: #edf5e9;
     border: 1px solid #355442;
@@ -275,6 +283,10 @@ if page == "Overview":
             st.markdown("**Dates**")
             st.caption(
                 "Medjool · Deglet Nour · Pitted Dates"
+            )
+
+            st.caption(
+                "Photo: ORGANIChouse · CC BY-SA 4.0"
             )
 
     # NUTS
