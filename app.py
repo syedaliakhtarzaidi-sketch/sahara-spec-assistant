@@ -118,7 +118,10 @@ div[data-testid="stImage"] img { width:100%; height:215px; object-fit:cover; bor
     object-position: center center !important;
     border-radius: 12px;
 }
-/* Compensate for extra whitespace in the dried-fruit source image */
+/* Compensate for whitespace inside the source photos */
+.ingredient-image-frame.dates-image img {
+    transform: scale(1.55);
+}
 .ingredient-image-frame.dried-fruits-image img {
     transform: scale(1.45);
 }
@@ -535,6 +538,7 @@ if page == "Overview":
             with st.container(border=True):
                 st.markdown(
                     f'<div class="ingredient-image-frame'
+                    f'{" dates-image" if name == "Dates" else ""}'
                     f'{" dried-fruits-image" if name == "Dried Fruits" else ""}">'
                     f'<img src="{html.escape(image, quote=True)}" '
                     f'alt="{html.escape(name, quote=True)}" '
