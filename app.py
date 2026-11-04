@@ -212,7 +212,7 @@ def find_specification_evidence(question, pages):
 
     evidence = []
     for page in pages:
-        lines = [re.sub(r"\\s+", " ", line).strip() for line in page["text"].splitlines()]
+        lines = [re.sub(r"\s+", " ", line).strip() for line in page["text"].splitlines()]
         lines = [line for line in lines if line]
         for index, line in enumerate(lines):
             lowered = line.casefold()
@@ -222,7 +222,7 @@ def find_specification_evidence(question, pages):
             score = len(hits)
             if "aflatoxin" in query and "aflatoxin" in lowered:
                 score += 5
-            if any(term in query for term in ["b1", "b2", "g1", "g2"]) and re.search(r"\\b(b1|b2|g1|g2)\\b", lowered):
+            if any(term in query for term in ["b1", "b2", "g1", "g2"]) and re.search(r"\b(b1|b2|g1|g2)\b", lowered):
                 score += 4
             evidence.append({
                 "page": page["page"],
