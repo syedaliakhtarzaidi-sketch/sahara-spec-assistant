@@ -9,13 +9,11 @@ st.set_page_config(
 )
 
 # =====================================================
-# SAHARA SIGNATURE — PREMIUM DESIGN
+# SAHARA SIGNATURE — CORRECTED PREMIUM DESIGN
 # =====================================================
 
 st.markdown("""
 <style>
-
-/* MAIN APPLICATION */
 .stApp {
     background: #101B15;
     color: #F4F5EF;
@@ -65,26 +63,12 @@ section[data-testid="stSidebar"] * {
     margin-bottom: 12px;
 }
 
-/* HEADINGS */
+/* HEADER */
 .eyebrow {
     color: #A6D936;
     font-size: 11px;
     letter-spacing: 3px;
     font-weight: 700;
-}
-
-.main-heading {
-    font-size: 39px;
-    font-weight: 750;
-    color: #F4F5EF;
-    line-height: 1.2;
-    margin-top: 8px;
-}
-
-.sub-heading {
-    color: #9DADA2;
-    font-size: 14px;
-    line-height: 1.7;
 }
 
 /* HERO */
@@ -107,6 +91,7 @@ section[data-testid="stSidebar"] * {
     color: #FFFFFF;
     font-size: 29px;
     font-weight: 750;
+    line-height: 1.3;
 }
 
 .hero-text {
@@ -134,6 +119,11 @@ section[data-testid="stSidebar"] * {
     padding: 21px;
     min-height: 145px;
     margin-bottom: 14px;
+    transition: border 0.2s ease;
+}
+
+.panel:hover {
+    border-color: #A6D936;
 }
 
 .panel-title {
@@ -174,16 +164,15 @@ section[data-testid="stSidebar"] * {
 }
 
 /* INPUT */
-.stTextInput input,
-.stTextArea textarea {
+.stTextInput input {
     background: #192B20 !important;
     color: #F4F5EF !important;
     border: 1px solid #3B5541 !important;
     border-radius: 12px !important;
+    min-height: 48px;
 }
 
-.stTextInput input:focus,
-.stTextArea textarea:focus {
+.stTextInput input:focus {
     border-color: #A6D936 !important;
     box-shadow: 0 0 0 1px #A6D936 !important;
 }
@@ -203,6 +192,11 @@ section[data-testid="stSidebar"] * {
     background: #B9EB51;
     color: #142016;
     border: none;
+}
+
+/* RADIO NAVIGATION */
+section[data-testid="stSidebar"] [role="radiogroup"] {
+    gap: 10px;
 }
 
 /* DIVIDER */
@@ -231,16 +225,25 @@ with st.sidebar:
 
     st.markdown("""
     <div style="padding:10px 0 25px 0;">
-        <div class="brand">SAHARA<span style="color:white;">.</span></div>
+        <div class="brand">
+            SAHARA<span style="color:white;">.</span>
+        </div>
+
         <div class="brand-sub">UK FOODS</div>
-        <div style="color:#718B77;font-size:10px;margin-top:12px;">
+
+        <div style="
+            color:#718B77;
+            font-size:10px;
+            margin-top:12px;">
             INTELLIGENCE PLATFORM
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="nav-label">WORKSPACE</div>',
-                unsafe_allow_html=True)
+    st.markdown(
+        '<div class="nav-label">WORKSPACE</div>',
+        unsafe_allow_html=True
+    )
 
     page = st.radio(
         "Navigation",
@@ -257,11 +260,16 @@ with st.sidebar:
 
     st.markdown("---")
 
-    st.markdown('<div class="nav-label">SYSTEM</div>',
-                unsafe_allow_html=True)
+    st.markdown(
+        '<div class="nav-label">SYSTEM</div>',
+        unsafe_allow_html=True
+    )
 
     st.markdown("""
-    <div style="color:#A4B3A6;font-size:12px;line-height:2.3;">
+    <div style="
+        color:#A4B3A6;
+        font-size:12px;
+        line-height:2.3;">
         ◈ Knowledge Library<br>
         ◈ Document Centre<br>
         ◈ Settings
@@ -271,9 +279,12 @@ with st.sidebar:
     st.markdown("---")
 
     st.markdown("""
-    <div style="font-size:11px;color:#829486;">
+    <div style="
+        font-size:11px;
+        color:#829486;">
         SAHARA UK FOODS<br>
-        <span style="color:#A6D936;">●</span> Intelligence Workspace
+        <span style="color:#A6D936;">●</span>
+        Intelligence Workspace
     </div>
     """, unsafe_allow_html=True)
 
@@ -286,7 +297,9 @@ col1, col2 = st.columns([3, 1])
 
 with col1:
     st.markdown("""
-    <div class="eyebrow">SAHARA SIGNATURE / INTELLIGENCE</div>
+    <div class="eyebrow">
+        SAHARA SIGNATURE / INTELLIGENCE
+    </div>
     """, unsafe_allow_html=True)
 
 with col2:
@@ -304,7 +317,9 @@ with col2:
 st.markdown("""
 <div class="hero">
 
-    <div class="hero-tag">SAHARA AI INTELLIGENCE</div>
+    <div class="hero-tag">
+        SAHARA AI INTELLIGENCE
+    </div>
 
     <div class="hero-title">
         Intelligence behind<br>
@@ -334,12 +349,17 @@ st.markdown("""
 # AI WORKSPACE
 # =====================================================
 
-st.markdown('<div class="section-heading">AI Intelligence Workspace</div>',
-            unsafe_allow_html=True)
+st.markdown(
+    '<div class="section-heading">AI Intelligence Workspace</div>',
+    unsafe_allow_html=True
+)
 
 st.markdown("""
 <div class="panel" style="min-height:100px;">
-    <div class="panel-title">What would you like to analyse?</div>
+    <div class="panel-title">
+        What would you like to analyse?
+    </div>
+
     <div class="panel-description">
         Ask questions about product specifications,
         quality parameters, allergens or compliance documents.
@@ -347,20 +367,35 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-question = st.text_area(
+# Using text_input instead of text_area
+# to avoid the TextArea frontend component.
+
+question = st.text_input(
     "Ask Sahara AI",
-    placeholder="Example: Analyse aflatoxin levels in this product specification...",
-    height=100,
-    label_visibility="collapsed"
+    placeholder=(
+        "Example: Analyse aflatoxin levels "
+        "in this product specification..."
+    ),
+    label_visibility="collapsed",
+    key="sahara_question"
 )
 
-if st.button("✦  Start Analysis", use_container_width=True):
+if st.button(
+    "✦  Start Analysis",
+    use_container_width=True,
+    key="start_analysis"
+):
+
     if question.strip():
+
         st.info(
             "Design preview only. The AI analysis engine "
-            "will be connected to your existing product and PDF database."
+            "will be connected to your existing product "
+            "and PDF database."
         )
+
     else:
+
         st.warning("Please enter a question first.")
 
 
@@ -368,27 +403,42 @@ if st.button("✦  Start Analysis", use_container_width=True):
 # INTELLIGENCE MODULES
 # =====================================================
 
-st.markdown('<div class="section-heading">Intelligence Modules</div>',
-            unsafe_allow_html=True)
+st.markdown(
+    '<div class="section-heading">Intelligence Modules</div>',
+    unsafe_allow_html=True
+)
 
 modules = [
-    ("◈", "Product Intelligence",
-     "Explore product specifications and technical documents."),
-
-    ("✧", "Quality Analysis",
-     "Analyse aflatoxin, moisture and microbiological parameters."),
-
-    ("◇", "Allergen Intelligence",
-     "Review allergen declarations and product risks."),
-
-    ("▤", "Nutrition Analysis",
-     "Review nutritional values and product comparisons."),
-
-    ("⬡", "Compliance Centre",
-     "Review food safety documentation and compliance evidence."),
-
-    ("⌘", "Knowledge Library",
-     "Access the central product and document knowledge base.")
+    (
+        "◈",
+        "Product Intelligence",
+        "Explore product specifications and technical documents."
+    ),
+    (
+        "✧",
+        "Quality Analysis",
+        "Analyse aflatoxin, moisture and microbiological parameters."
+    ),
+    (
+        "◇",
+        "Allergen Intelligence",
+        "Review allergen declarations and product risks."
+    ),
+    (
+        "▤",
+        "Nutrition Analysis",
+        "Review nutritional values and product comparisons."
+    ),
+    (
+        "⬡",
+        "Compliance Centre",
+        "Review food safety documentation and compliance evidence."
+    ),
+    (
+        "⌘",
+        "Knowledge Library",
+        "Access the central product and document knowledge base."
+    )
 ]
 
 cols = st.columns(3)
@@ -400,9 +450,13 @@ for i, module in enumerate(modules):
         st.markdown(f"""
         <div class="panel">
 
-            <div class="panel-icon">{module[0]}</div>
+            <div class="panel-icon">
+                {module[0]}
+            </div>
 
-            <div class="panel-title">{module[1]}</div>
+            <div class="panel-title">
+                {module[1]}
+            </div>
 
             <div class="panel-description">
                 {module[2]}
