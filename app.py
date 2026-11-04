@@ -271,32 +271,38 @@ elif page == "Product Intelligence":
                 | view["Country of Origin"].astype(str).str.contains(term, case=False, na=False)
             )
             view = view[mask]
-        st.caption(f"{len(view)} matching product(s) · {matched_pdf_count} product records have a matching PDF")
-        for index, row in view.head(150).iterrows():
-            product_code = str(row["Product Code"])
-            pdf_path = pdf_lookup.get(product_code)
-            with st.container(border=True):
-                left, middle, right = st.columns([1.15, 3.6, 1.55])
-                left.markdown(f"**{product_code}**")
-                middle.markdown(f"**{row['Product Name']}**")
-                middle.caption(f"Origin: {row['Country of Origin']} · {category_for_product(row['Product Name'])}")
-                if pdf_path:
-                    if right.button("View Spec", key=f"view_{page}_{index}", use_container_width=True):
-                        st.session_state["selected_pdf_path"] = str(pdf_path)
-                        st.session_state["selected_pdf_product"] = f"{product_code} — {row['Product Name']}"
-                else:
-                    right.button("PDF Not Found", key=f"missing_{page}_{index}", disabled=True, use_container_width=True)
-
         selected_path = st.session_state.get("selected_pdf_path")
+        selected_product = st.session_state.get("selected_pdf_product")
+
         if selected_path:
             selected_pdf = Path(selected_path)
-            st.markdown("---")
-            st.markdown(f"### Original Specification")
-            st.markdown(f"**{st.session_state.get('selected_pdf_product', selected_pdf.name)}**")
+            st.markdown("### Selected Product")
+            st.markdown(f"**{selected_product or selected_pdf.name}**")
+            if st.button("← Back to Product Search", key="back_to_product_search"):
+                st.session_state.pop("selected_pdf_path", None)
+                st.session_state.pop("selected_pdf_product", None)
+                st.rerun()
             if selected_pdf.exists():
                 render_original_pdf(selected_pdf)
             else:
                 st.error("The selected PDF is not available in the deployed repository. Please check the file in GitHub.")
+        else:
+            st.caption(f"{len(view)} matching product(s) · {matched_pdf_count} product records have a matching PDF")
+            for index, row in view.head(150).iterrows():
+                product_code = str(row["Product Code"])
+                pdf_path = pdf_lookup.get(product_code)
+                with st.container(border=True):
+                    left, middle, right = st.columns([1.15, 3.6, 1.55])
+                    left.markdown(f"**{product_code}**")
+                    middle.markdown(f"**{row['Product Name']}**")
+                    middle.caption(f"Origin: {row['Country of Origin']} · {category_for_product(row['Product Name'])}")
+                    if pdf_path:
+                        if right.button("View Spec", key=f"view_{page}_{index}", use_container_width=True):
+                            st.session_state["selected_pdf_path"] = str(pdf_path)
+                            st.session_state["selected_pdf_product"] = f"{product_code} — {row['Product Name']}"
+                            st.rerun()
+                    else:
+                        right.button("PDF Not Found", key=f"missing_{page}_{index}", disabled=True, use_container_width=True)
 
 elif page == "AI Assistant":
     st.markdown("### Sahara AI Assistant")
