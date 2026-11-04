@@ -152,7 +152,7 @@ def render_original_pdf(pdf_path):
                 """,
                 unsafe_allow_html=True,
             )
-            st.pdf(pdf_bytes, height=1100, width="stretch")
+            st.pdf(pdf_bytes, height=1100)
 
         st.download_button(
             "Download Original PDF",
