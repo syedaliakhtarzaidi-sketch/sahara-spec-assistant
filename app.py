@@ -57,6 +57,12 @@ div[data-testid="stVerticalBlockBorderWrapper"] { background:#10291f; border:1px
 div.stButton > button, div.stDownloadButton > button { background:#c9e58f; color:#10291e; border:none; border-radius:9px; font-weight:700; padding:10px 18px; }
 div.stButton > button:hover, div.stDownloadButton > button:hover { background:#d9efaa; color:#10291e; }
 .stTextInput input, [data-baseweb="select"] { background:#102b21; color:#edf5e9; border:1px solid #355442; border-radius:9px; }
+/* Search field label and placeholder visibility */
+[data-testid="stTextInput"] label,
+[data-testid="stTextInput"] label p { color:#ffffff !important; }
+[data-testid="stTextInput"] input::placeholder { color:#ffffff !important; opacity:1 !important; }
+[data-testid="stTextInput"] input { color:#ffffff !important; }
+
 /* Keep category selector text clearly visible on the dark theme */
 [data-testid="stSelectbox"] label { color:#ffffff !important; }
 [data-testid="stSelectbox"] [data-baseweb="select"] * { color:#ffffff !important; }
