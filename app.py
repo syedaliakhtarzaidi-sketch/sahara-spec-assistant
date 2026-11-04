@@ -606,22 +606,85 @@ elif page == "Product Intelligence":
             else:
                 st.error("The selected PDF is not available in the deployed repository. Please check the file in GitHub.")
         else:
-            st.caption(f"{len(view)} matching product(s) · {matched_pdf_count} product records have a matching PDF")
-            for index, row in view.head(150).iterrows():
-                product_code = str(row["Product Code"])
-                pdf_path = pdf_lookup.get(product_code)
-                with st.container(border=True):
-                    left, middle, right = st.columns([1.15, 3.6, 1.55])
-                    left.markdown(f"**{product_code}**")
-                    middle.markdown(f"**{row['Product Name']}**")
-                    middle.caption(f"Origin: {row['Country of Origin']} · {category_for_product(row['Product Name'])}")
-                    if pdf_path:
-                        if right.button("View Spec", key=f"view_{page}_{index}", use_container_width=True):
-                            st.session_state["selected_pdf_path"] = str(pdf_path)
-                            st.session_state["selected_pdf_product"] = f"{product_code} — {row['Product Name']}"
-                            st.rerun()
-                    else:
-                        right.button("PDF Not Found", key=f"missing_{page}_{index}", disabled=True, use_container_width=True)
+            # Build a complete register so users can audit every database record at once.
+            register = view.copy()
+            register["PDF File"] = register["Product Code"].map(
+                lambda code: pdf_lookup.get(str(code)).name if pdf_lookup.get(str(code)) else ""
+            )
+            register["PDF Status"] = register["PDF File"].apply(
+                lambda filename: "Matched" if filename else "MISSING PDF"
+            )
+            register = register[
+                ["Product Code", "Product Name", "Country of Origin", "Category", "PDF Status", "PDF File"]
+            ]
+
+            all_product_codes = set(products["Product Code"].astype(str).str.strip().str.upper())
+            all_pdf_codes = {
+                match.group(1).replace(" ", "").upper()
+                for path in pdf_files
+                if (match := re.search(r"(SUFL\\s*\\d+)", path.stem, re.IGNORECASE))
+            }
+            missing_pdf_count = sum(
+                pdf_lookup.get(str(code)) is None for code in products["Product Code"]
+            )
+            pdf_without_record_count = len(all_pdf_codes - all_product_codes)
+
+            st.caption(
+                f"Showing all {len(view)} matching database record(s). "
+                f"The complete database contains {len(products)} product record(s)."
+            )
+            metric_cols = st.columns(4)
+            for col, label, value in [
+                (metric_cols[0], "DATABASE RECORDS", len(products)),
+                (metric_cols[1], "SUPPLIER PDFs", len(pdf_files)),
+                (metric_cols[2], "MISSING PDFs", missing_pdf_count),
+                (metric_cols[3], "PDFs WITHOUT RECORD", pdf_without_record_count),
+            ]:
+                with col:
+                    st.metric(label, value)
+
+            st.dataframe(
+                register,
+                use_container_width=True,
+                hide_index=True,
+                height=560,
+                column_config={
+                    "Product Code": st.column_config.TextColumn("Product Code"),
+                    "Product Name": st.column_config.TextColumn("Product Name", width="large"),
+                    "Country of Origin": st.column_config.TextColumn("Country of Origin"),
+                    "Category": st.column_config.TextColumn("Category"),
+                    "PDF Status": st.column_config.TextColumn("PDF Status"),
+                    "PDF File": st.column_config.TextColumn("Matched PDF", width="large"),
+                },
+            )
+            st.download_button(
+                "Download Complete Product Audit (CSV)",
+                data=register.to_csv(index=False).encode("utf-8-sig"),
+                file_name="Sahara_Product_Audit.csv",
+                mime="text/csv",
+                use_container_width=True,
+            )
+
+            if not register.empty:
+                product_options = {
+                    f"{row['Product Code']} — {row['Product Name']}": str(row["Product Code"])
+                    for _, row in view.iterrows()
+                    if pdf_lookup.get(str(row["Product Code"])) is not None
+                }
+                if product_options:
+                    chosen_product = st.selectbox(
+                        "Open a supplier specification",
+                        list(product_options.keys()),
+                        key="product_audit_open_pdf",
+                    )
+                    if st.button("View Selected PDF", use_container_width=True):
+                        chosen_code = product_options[chosen_product]
+                        chosen_row = view[view["Product Code"].astype(str).eq(chosen_code)].iloc[0]
+                        st.session_state["selected_pdf_path"] = str(pdf_lookup[chosen_code])
+                        st.session_state["selected_pdf_product"] = (
+                            f"{chosen_code} — {chosen_row['Product Name']}"
+                        )
+                        st.rerun()
 
 elif page == "AI Assistant":
     st.markdown("### Sahara AI Assistant")
