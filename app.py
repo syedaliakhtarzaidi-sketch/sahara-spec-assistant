@@ -242,6 +242,85 @@ def find_specification_evidence(question, pages):
             seen.add(key)
     return unique[:15]
 
+
+
+def classify_spec_question(question):
+    q = question.casefold()
+    if any(x in q for x in ["aflatoxin", "b1", "b2", "g1", "g2"]):
+        return "aflatoxin"
+    if any(x in q for x in ["ingredient", "composition", "made of", "contains"]):
+        return "ingredients"
+    if any(x in q for x in ["allergen", "allergy"]):
+        return "allergen"
+    if any(x in q for x in ["pesticide", "residue"]):
+        return "pesticide"
+    if any(x in q for x in ["microbiology", "microbiological", "salmonella", "yeast", "mould", "mold", "e. coli", "coliform"]):
+        return "microbiology"
+    if any(x in q for x in ["nutrition", "nutritional", "energy", "protein", "carbohydrate", "fat"]):
+        return "nutrition"
+    if any(x in q for x in ["moisture", "water content"]):
+        return "moisture"
+    if any(x in q for x in ["sulphur dioxide", "sulfur dioxide", "so2"]):
+        return "so2"
+    if any(x in q for x in ["shelf life", "best before", "storage", "storing"]):
+        return "storage"
+    if any(x in q for x in ["origin", "country of origin", "where is it from"]):
+        return "origin"
+    return "general"
+
+
+def build_structured_answer(question, pages):
+    """Create concise, field-based answers using only text present in the supplier PDF."""
+    kind = classify_spec_question(question)
+    lines = []
+    for page in pages:
+        for raw in page["text"].splitlines():
+            line = re.sub(r"\s+", " ", raw).strip()
+            if line:
+                lines.append((page["page"], line))
+
+    def matching(patterns):
+        found = []
+        for page_no, line in lines:
+            if any(re.search(pattern, line, re.I) for pattern in patterns):
+                found.append((page_no, line))
+        return found
+
+    if kind == "aflatoxin":
+        fields = [
+            ("Aflatoxin B1", [r"\baflatoxin\s*[-:]?\s*b1\b", r"\bB1\b"]),
+            ("Aflatoxin B2", [r"\baflatoxin\s*[-:]?\s*b2\b", r"\bB2\b"]),
+            ("Aflatoxin G1", [r"\baflatoxin\s*[-:]?\s*g1\b", r"\bG1\b"]),
+            ("Aflatoxin G2", [r"\baflatoxin\s*[-:]?\s*g2\b", r"\bG2\b"]),
+            ("Total Aflatoxin", [r"\btotal\s+aflatoxins?\b", r"\baflatoxins?\s+total\b"]),
+        ]
+        results = []
+        for label, patterns in fields:
+            hits = matching(patterns)
+            # Avoid treating a bare B1/G1 mention as a result unless a value or unit is present.
+            useful = [(p, t) for p, t in hits if re.search(r"(\d+(?:[.,]\d+)?|nd|not detected|<|≤|mg/kg|µg/kg|ug/kg|ppb)", t, re.I)]
+            results.append((label, useful[0] if useful else None))
+        return {"kind": kind, "rows": results}
+
+    pattern_map = {
+        "ingredients": [r"\bingredients?\b", r"\bcomposition\b"],
+        "allergen": [r"\ballergen", r"\bcontains?\s:", r"\bmay contain\b"],
+        "pesticide": [r"\bpesticide", r"\bresidue"],
+        "microbiology": [r"\bmicrobiolog", r"\bsalmonella\b", r"\byeast\b", r"\bmould\b", r"\bmold\b", r"\be\.?\s*coli\b", r"\bcoliform"],
+        "nutrition": [r"\bnutrition", r"\benergy\b", r"\bprotein\b", r"\bcarbohydrate\b", r"\bfat\b"],
+        "moisture": [r"\bmoisture\b", r"\bwater content\b"],
+        "so2": [r"\bso2\b", r"\bsulphur dioxide\b", r"\bsulfur dioxide\b"],
+        "storage": [r"\bshelf life\b", r"\bbest before\b", r"\bstorage\b"],
+        "origin": [r"\bcountry of origin\b", r"\borigin\b"],
+    }
+    if kind in pattern_map:
+        hits = matching(pattern_map[kind])
+        # Prefer the most informative, concise source line rather than returning every keyword hit.
+        hits.sort(key=lambda x: (len(x[1]) < 20, len(x[1])))
+        return {"kind": kind, "hits": hits[:5]}
+    return {"kind": "general", "hits": find_specification_evidence(question, pages)[:5]}
+
+
 def category_for_product(product_name):
     name = str(product_name).casefold()
     if any(word in name for word in ["date", "deglet", "medjool", "sayer", "aseel"]):
@@ -428,16 +507,50 @@ elif page == "AI Assistant":
                     elif not any(page["text"].strip() for page in pages):
                         st.warning("No searchable text was extracted. This PDF may be scanned or image-only; no values have been assumed.")
                     else:
-                        matches = find_specification_evidence(question, pages)
-                        if matches:
-                            st.markdown("#### Evidence found in supplier specification")
-                            st.caption("The following are source excerpts, not generated or calculated values. Check the cited page in the original PDF.")
-                            for item in matches:
+                        answer = build_structured_answer(question, pages)
+                        if answer["kind"] == "aflatoxin":
+                            st.markdown("#### Aflatoxin analysis")
+                            st.caption("Only values explicitly stated in the supplier PDF are shown. Missing values are not estimated.")
+                            rows = []
+                            source_pages = set()
+                            for label, hit in answer["rows"]:
+                                if hit:
+                                    page_no, source_line = hit
+                                    source_pages.add(page_no)
+                                    rows.append({"Parameter": label, "Supplier result": source_line})
+                                else:
+                                    rows.append({"Parameter": label, "Supplier result": "Not found in specification"})
+                            st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+                            if source_pages:
+                                st.caption("Source PDF page(s): " + ", ".join(map(str, sorted(source_pages))))
+                            else:
+                                st.warning("No aflatoxin result was found in the searchable text of this PDF.")
+                        elif answer["kind"] == "ingredients":
+                            st.markdown("#### Ingredients")
+                            if answer.get("hits"):
+                                for page_no, source_line in answer["hits"][:3]:
+                                    cleaned = re.sub(r"^.*?ingredients?\\s*", "", source_line, flags=re.I).strip(" :-")
+                                    st.markdown(f"- {cleaned or source_line}")
+                                    st.caption(f"Source: supplier PDF · Page {page_no}")
+                            else:
+                                st.warning("Ingredients are not stated in the searchable text of this specification.")
+                        elif answer.get("hits"):
+                            st.markdown("#### Specification answer")
+                            st.caption("Relevant supplier-stated information. Values are quoted as written; nothing is calculated.")
+                            for page_no, source_line in answer["hits"]:
                                 with st.container(border=True):
+                                    st.write(source_line)
+                                    st.caption(f"Source: supplier PDF · Page {page_no}")
+                        else:
+                            st.warning("This information was not found in the searchable text of this supplier PDF. No value has been assumed.")
+                        with st.expander("View supporting PDF evidence"):
+                            matches = find_specification_evidence(question, pages)
+                            if matches:
+                                for item in matches[:5]:
                                     st.markdown(f"**PDF page {item['page']}**")
                                     st.write(item["context"])
-                        else:
-                            st.warning("Not found in the searchable text of this supplier PDF. No value has been assumed.")
+                            else:
+                                st.caption("No matching supporting excerpt was found.")
             with st.expander("Open original supplier PDF"):
                 render_original_pdf(chosen_pdf)
 
