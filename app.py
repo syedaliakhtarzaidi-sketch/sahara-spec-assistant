@@ -1,531 +1,436 @@
 
-import os
-import re
-import html
-import base64
 import streamlit as st
-import pandas as pd
-import streamlit.components.v1 as components
 
 st.set_page_config(
-    page_title="Sahara | Food Science Intelligence",
+    page_title="Sahara | AI Intelligence",
     page_icon="🌿",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# ---------------- THEME ----------------
+# =====================================================
+# SAHARA SIGNATURE — PREMIUM DESIGN
+# =====================================================
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
+/* MAIN APPLICATION */
 .stApp {
-    background:#17251F;
-    color:#F1F0E9;
-    font-family:'DM Sans',sans-serif;
+    background: #101B15;
+    color: #F4F5EF;
+    font-family: 'Inter', sans-serif;
 }
+
+header[data-testid="stHeader"] {
+    background: transparent;
+}
+
 .block-container {
-    max-width:1450px;
-    padding-top:2rem;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+    max-width: 1500px;
 }
-[data-testid="stSidebar"] {
-    background:#14221B;
-    border-right:1px solid #405247;
+
+/* SIDEBAR */
+section[data-testid="stSidebar"] {
+    background: #14251C;
+    border-right: 1px solid #2A4031;
 }
-h1,h2,h3,h4,p,label {
-    color:#F1F0E9 !important;
+
+section[data-testid="stSidebar"] * {
+    color: #E8EEE7;
 }
-.muted {color:#B8C5BB;font-size:13px;}
+
+.brand {
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #A6D936;
+}
+
+.brand-sub {
+    color: #9CAEA0;
+    font-size: 11px;
+    letter-spacing: 3px;
+    margin-top: -5px;
+}
+
+.nav-label {
+    color: #839589;
+    font-size: 10px;
+    letter-spacing: 2px;
+    font-weight: 700;
+    margin-top: 30px;
+    margin-bottom: 12px;
+}
+
+/* HEADINGS */
 .eyebrow {
-    color:#D4B879;
-    font-size:10px;
-    font-weight:700;
-    letter-spacing:2px;
+    color: #A6D936;
+    font-size: 11px;
+    letter-spacing: 3px;
+    font-weight: 700;
 }
+
+.main-heading {
+    font-size: 39px;
+    font-weight: 750;
+    color: #F4F5EF;
+    line-height: 1.2;
+    margin-top: 8px;
+}
+
+.sub-heading {
+    color: #9DADA2;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* HERO */
 .hero {
-    font-size:34px;
-    font-weight:700;
-    margin-top:8px;
+    background:
+        radial-gradient(
+            circle at 90% 10%,
+            rgba(166,217,54,0.15),
+            transparent 35%
+        ),
+        linear-gradient(120deg, #1C3527, #17281E 70%);
+    border: 1px solid #35513A;
+    border-radius: 22px;
+    padding: 34px;
+    margin-top: 25px;
+    margin-bottom: 25px;
 }
+
+.hero-title {
+    color: #FFFFFF;
+    font-size: 29px;
+    font-weight: 750;
+}
+
+.hero-text {
+    color: #B8C7B9;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.hero-tag {
+    display: inline-block;
+    background: rgba(166,217,54,0.13);
+    color: #B8E66A;
+    padding: 7px 13px;
+    border-radius: 30px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+}
+
+/* CARDS */
 .panel {
-    background:#22352B;
-    border:1px solid #405247;
-    border-radius:12px;
-    padding:18px;
-    margin-bottom:12px;
+    background: #1A2B21;
+    border: 1px solid #304638;
+    border-radius: 17px;
+    padding: 21px;
+    min-height: 145px;
+    margin-bottom: 14px;
 }
-.metric {
-    background:#22352B;
-    border:1px solid #405247;
-    border-radius:10px;
-    padding:16px;
+
+.panel-title {
+    color: #EAF0E8;
+    font-size: 15px;
+    font-weight: 700;
 }
-.metric-number {
-    color:#D4B879;
-    font-size:26px;
-    font-weight:700;
+
+.panel-description {
+    color: #9DADA2;
+    font-size: 12px;
+    line-height: 1.7;
+    margin-top: 8px;
 }
+
+.panel-icon {
+    font-size: 23px;
+    margin-bottom: 13px;
+}
+
+/* SECTION */
+.section-heading {
+    color: #F1F4ED;
+    font-size: 19px;
+    font-weight: 700;
+    margin-top: 22px;
+    margin-bottom: 15px;
+}
+
+/* STATUS */
+.status {
+    color: #B5E36B;
+    font-size: 11px;
+    background: #263E2B;
+    border: 1px solid #45663D;
+    border-radius: 20px;
+    padding: 6px 12px;
+}
+
+/* INPUT */
+.stTextInput input,
+.stTextArea textarea {
+    background: #192B20 !important;
+    color: #F4F5EF !important;
+    border: 1px solid #3B5541 !important;
+    border-radius: 12px !important;
+}
+
+.stTextInput input:focus,
+.stTextArea textarea:focus {
+    border-color: #A6D936 !important;
+    box-shadow: 0 0 0 1px #A6D936 !important;
+}
+
+/* BUTTON */
 .stButton button {
-    background:#D4B879;
-    color:#17251F;
-    border:0;
-    border-radius:7px;
-    font-weight:700;
+    background: #A6D936;
+    color: #142016;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 10px 18px;
+    transition: 0.2s;
 }
+
 .stButton button:hover {
-    background:#E5CB92;
-    color:#17251F;
+    background: #B9EB51;
+    color: #142016;
+    border: none;
 }
-.stTextInput input {
-    background:#22352B !important;
-    color:#F1F0E9 !important;
-    border:1px solid #405247 !important;
+
+/* DIVIDER */
+hr {
+    border-color: #304638;
 }
-hr {border-color:#405247;}
+
+/* HIDE STREAMLIT BRANDING */
+#MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
 
-# ---------------- CONSTANTS ----------------
-
-CATEGORIES = [
-    "All Products",
-    "Dates",
-    "Dried Fruits",
-    "Nuts",
-    "Seeds & Oils",
-    "Spices & Herbs",
-    "Pulses & Flours",
-    "Other"
-]
-
-
-# ---------------- DATA ----------------
-
-@st.cache_data
-def load_products():
-
-    path = "Product_Specs_Summary.xlsx"
-
-    if not os.path.exists(path):
-        return pd.DataFrame()
-
-    df = pd.read_excel(path)
-    df.columns = [str(c).strip() for c in df.columns]
-
-    required = [
-        "Product Code",
-        "Product Name",
-        "Country of Origin"
-    ]
-
-    missing = [c for c in required if c not in df.columns]
-
-    if missing:
-        return pd.DataFrame()
-
-    df = df.copy()
-
-    df["Product Code"] = df["Product Code"].astype(str).str.strip()
-    df["Product Name"] = df["Product Name"].fillna("").astype(str).str.strip()
-    df["Country of Origin"] = (
-        df["Country of Origin"]
-        .fillna("Not specified")
-        .astype(str)
-        .str.strip()
-    )
-
-    df = df[
-        (df["Product Code"] != "") &
-        (df["Product Code"].str.lower() != "nan") &
-        (df["Product Code"] != "SUFL7548")
-    ]
-
-    df = df.drop_duplicates(subset=["Product Code"])
-
-    df.loc[
-        df["Product Code"] == "SUFL7390",
-        "Country of Origin"
-    ] = "Algeria / Tunisia"
-
-    df = df.sort_values("Product Name").reset_index(drop=True)
-
-    return df
-
-
-def identify_category(name):
-
-    n = str(name).lower()
-
-    categories = {
-        "Dates": [
-            "date", "sayer", "aseel", "deglet", "medjool",
-            "ajwa", "khudri", "zahedi"
-        ],
-        "Dried Fruits": [
-            "apricot", "fig", "raisin", "sultana",
-            "cranberry", "prune", "plum", "mango",
-            "banana", "pineapple", "physalis", "goldenberry"
-        ],
-        "Nuts": [
-            "almond", "pistachio", "cashew", "walnut",
-            "hazelnut", "peanut", "pecan", "pinenut"
-        ],
-        "Seeds & Oils": [
-            "sesame", "seed", "oil", "coconut"
-        ],
-        "Spices & Herbs": [
-            "saffron", "garlic", "spice", "herb",
-            "pepper", "turmeric", "cinnamon"
-        ],
-        "Pulses & Flours": [
-            "pea", "lentil", "flour", "bean",
-            "chickpea", "pulse", "cacao", "cocoa"
-        ]
-    }
-
-    for category, keywords in categories.items():
-        if any(word in n for word in keywords):
-            return category
-
-    return "Other"
-
-
-# ---------------- PDF MAPPING ----------------
-
-@st.cache_data
-def get_pdf_mapping(product_codes):
-
-    mapping = {}
-
-    search_dirs = ["pdfs", "PDFs", "pdf", "."]
-
-    for directory in search_dirs:
-
-        if not os.path.isdir(directory):
-            continue
-
-        try:
-            files = os.listdir(directory)
-        except OSError:
-            continue
-
-        for filename in files:
-
-            if not filename.lower().endswith(".pdf"):
-                continue
-
-            for code in product_codes:
-
-                if code.lower() in filename.lower():
-
-                    full_path = os.path.join(directory, filename)
-
-                    if code not in mapping:
-                        mapping[code] = full_path
-
-    return mapping
-
-
-# ---------------- LOAD DATABASE ----------------
-
-df = load_products()
-
-if not df.empty:
-
-    df["Category"] = df["Product Name"].apply(identify_category)
-
-    pdf_map = get_pdf_mapping(
-        tuple(df["Product Code"].tolist())
-    )
-
-else:
-    pdf_map = {}
-
-
-# ---------------- SESSION STATE ----------------
-
-if "selected_product" not in st.session_state:
-    st.session_state.selected_product = None
-
-
-# ---------------- SIDEBAR ----------------
+# =====================================================
+# SIDEBAR
+# =====================================================
 
 with st.sidebar:
 
     st.markdown("""
-    <div style="margin-bottom:25px">
-        <div style="font-size:25px;font-weight:800;letter-spacing:2px">
-            SAHARA
-        </div>
-        <div style="font-size:9px;letter-spacing:2px;color:#D4B879">
-            FOOD SCIENCE INTELLIGENCE
+    <div style="padding:10px 0 25px 0;">
+        <div class="brand">SAHARA<span style="color:white;">.</span></div>
+        <div class="brand-sub">UK FOODS</div>
+        <div style="color:#718B77;font-size:10px;margin-top:12px;">
+            INTELLIGENCE PLATFORM
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown(
-        '<div class="eyebrow">MAIN MENU</div>',
-        unsafe_allow_html=True
-    )
+    st.markdown('<div class="nav-label">WORKSPACE</div>',
+                unsafe_allow_html=True)
 
     page = st.radio(
         "Navigation",
-        ["Dashboard", "Product Database"],
+        [
+            "AI Intelligence",
+            "Product Intelligence",
+            "Quality Analysis",
+            "Allergen Intelligence",
+            "Nutrition Analysis",
+            "Compliance Centre"
+        ],
         label_visibility="collapsed"
     )
 
     st.markdown("---")
-    st.caption("SAHARA UK FOODS LTD")
+
+    st.markdown('<div class="nav-label">SYSTEM</div>',
+                unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style="color:#A4B3A6;font-size:12px;line-height:2.3;">
+        ◈ Knowledge Library<br>
+        ◈ Document Centre<br>
+        ◈ Settings
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    st.markdown("""
+    <div style="font-size:11px;color:#829486;">
+        SAHARA UK FOODS<br>
+        <span style="color:#A6D936;">●</span> Intelligence Workspace
+    </div>
+    """, unsafe_allow_html=True)
 
 
-# ---------------- HEADER ----------------
+# =====================================================
+# TOP HEADER
+# =====================================================
+
+col1, col2 = st.columns([3, 1])
+
+with col1:
+    st.markdown("""
+    <div class="eyebrow">SAHARA SIGNATURE / INTELLIGENCE</div>
+    """, unsafe_allow_html=True)
+
+with col2:
+    st.markdown("""
+    <div style="text-align:right;">
+        <span class="status">● SYSTEM ONLINE</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# =====================================================
+# MAIN HERO
+# =====================================================
 
 st.markdown("""
-<div class="eyebrow">SAHARA UK FOODS / WORKSPACE</div>
-<div class="hero">Food Science Intelligence</div>
-<p class="muted">
-Centralised product information and technical documentation.
-</p>
-<hr>
+<div class="hero">
+
+    <div class="hero-tag">SAHARA AI INTELLIGENCE</div>
+
+    <div class="hero-title">
+        Intelligence behind<br>
+        every ingredient.
+    </div>
+
+    <p class="hero-text">
+        Your central workspace for product specifications,
+        food quality intelligence, technical documentation
+        and compliance analysis.
+    </p>
+
+    <div style="
+        color:#A6D936;
+        font-size:11px;
+        letter-spacing:2px;
+        margin-top:25px;
+        font-weight:700;">
+        SAHARA UK FOODS
+    </div>
+
+</div>
 """, unsafe_allow_html=True)
 
 
-# ---------------- DASHBOARD ----------------
+# =====================================================
+# AI WORKSPACE
+# =====================================================
 
-if page == "Dashboard":
+st.markdown('<div class="section-heading">AI Intelligence Workspace</div>',
+            unsafe_allow_html=True)
 
-    st.markdown("### Overview")
+st.markdown("""
+<div class="panel" style="min-height:100px;">
+    <div class="panel-title">What would you like to analyse?</div>
+    <div class="panel-description">
+        Ask questions about product specifications,
+        quality parameters, allergens or compliance documents.
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
-    if df.empty:
+question = st.text_area(
+    "Ask Sahara AI",
+    placeholder="Example: Analyse aflatoxin levels in this product specification...",
+    height=100,
+    label_visibility="collapsed"
+)
 
-        st.error("Product database could not be loaded.")
-
+if st.button("✦  Start Analysis", use_container_width=True):
+    if question.strip():
+        st.info(
+            "Design preview only. The AI analysis engine "
+            "will be connected to your existing product and PDF database."
+        )
     else:
+        st.warning("Please enter a question first.")
 
-        a, b, c = st.columns(3)
 
-        with a:
-            st.markdown(f"""
-            <div class="metric">
-                <div class="muted">TOTAL PRODUCTS</div>
-                <div class="metric-number">{len(df)}</div>
+# =====================================================
+# INTELLIGENCE MODULES
+# =====================================================
+
+st.markdown('<div class="section-heading">Intelligence Modules</div>',
+            unsafe_allow_html=True)
+
+modules = [
+    ("◈", "Product Intelligence",
+     "Explore product specifications and technical documents."),
+
+    ("✧", "Quality Analysis",
+     "Analyse aflatoxin, moisture and microbiological parameters."),
+
+    ("◇", "Allergen Intelligence",
+     "Review allergen declarations and product risks."),
+
+    ("▤", "Nutrition Analysis",
+     "Review nutritional values and product comparisons."),
+
+    ("⬡", "Compliance Centre",
+     "Review food safety documentation and compliance evidence."),
+
+    ("⌘", "Knowledge Library",
+     "Access the central product and document knowledge base.")
+]
+
+cols = st.columns(3)
+
+for i, module in enumerate(modules):
+
+    with cols[i % 3]:
+
+        st.markdown(f"""
+        <div class="panel">
+
+            <div class="panel-icon">{module[0]}</div>
+
+            <div class="panel-title">{module[1]}</div>
+
+            <div class="panel-description">
+                {module[2]}
             </div>
-            """, unsafe_allow_html=True)
 
-        with b:
-            st.markdown(f"""
-            <div class="metric">
-                <div class="muted">SPECIFICATION PDFs</div>
-                <div class="metric-number">{len(pdf_map)}</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with c:
-            st.markdown(f"""
-            <div class="metric">
-                <div class="muted">PRODUCT CATEGORIES</div>
-                <div class="metric-number">{df['Category'].nunique()}</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        st.write("")
-        st.markdown("### Product Categories")
-
-        counts = df["Category"].value_counts()
-
-        columns = st.columns(4)
-
-        for i, category in enumerate(CATEGORIES[1:]):
-
-            count = int(counts.get(category, 0))
-
-            with columns[i % 4]:
-
-                st.markdown(f"""
-                <div class="metric" style="margin-bottom:12px">
-                    <div class="muted">{html.escape(category.upper())}</div>
-                    <div class="metric-number">{count}</div>
-                    <div class="muted">Products</div>
-                </div>
-                """, unsafe_allow_html=True)
+        </div>
+        """, unsafe_allow_html=True)
 
 
-# ---------------- PRODUCT DATABASE ----------------
+# =====================================================
+# FOOTER
+# =====================================================
 
-elif page == "Product Database":
+st.markdown("---")
 
-    st.markdown("### Product Database")
+st.markdown("""
+<div style="
+    display:flex;
+    justify-content:space-between;
+    color:#718578;
+    font-size:10px;
+    letter-spacing:1px;">
 
-    st.markdown(
-        '<p class="muted">Select a category to explore its products and technical documentation.</p>',
-        unsafe_allow_html=True
-    )
+    <span>SAHARA UK FOODS</span>
 
-    if df.empty:
+    <span>INTELLIGENCE PLATFORM</span>
 
-        st.error("Product database is empty or Excel file is unavailable.")
+    <span>VERSION 1.0</span>
 
-    else:
-
-        # CATEGORY SELECTION
-
-        st.markdown("#### 01 — Select Category")
-
-        selected_category = st.selectbox(
-            "Product Category",
-            CATEGORIES,
-            key="category_selector"
-        )
-
-        filtered = df.copy()
-
-        if selected_category != "All Products":
-
-            filtered = filtered[
-                filtered["Category"] == selected_category
-            ]
-
-        # SEARCH
-
-        st.markdown("#### 02 — Find a Product")
-
-        search = st.text_input(
-            "Search",
-            placeholder="Search by product code, name or country of origin...",
-            key="product_search"
-        )
-
-        if search.strip():
-
-            term = search.strip().lower()
-
-            mask = (
-                filtered["Product Code"].str.lower().str.contains(term, na=False) |
-                filtered["Product Name"].str.lower().str.contains(term, na=False) |
-                filtered["Country of Origin"].str.lower().str.contains(term, na=False)
-            )
-
-            filtered = filtered[mask]
-
-        st.markdown(
-            f'<div class="muted">{len(filtered)} matching products</div>',
-            unsafe_allow_html=True
-        )
-
-        st.markdown("---")
-
-        # PRODUCT SELECTION
-
-        if filtered.empty:
-
-            st.warning("No matching products found.")
-
-        else:
-
-            product_lookup = {
-                row["Product Code"]: row["Product Name"]
-                for _, row in filtered.iterrows()
-            }
-
-            product_options = filtered["Product Code"].tolist()
-
-            selected_code = st.selectbox(
-                "Product",
-                product_options,
-                format_func=lambda code: (
-                    f"{code}  —  {product_lookup.get(code, '')}"
-                ),
-                key="product_selector"
-            )
-
-            # SELECTED PRODUCT DETAILS
-
-            selected = df[
-                df["Product Code"] == selected_code
-            ]
-
-            if not selected.empty:
-
-                row = selected.iloc[0]
-
-                code = row["Product Code"]
-                name = row["Product Name"]
-                origin = row["Country of Origin"]
-                category = row["Category"]
-
-                st.markdown("---")
-                st.markdown("#### 03 — Product Information")
-
-                st.markdown(f"""
-                <div class="panel">
-                    <div class="eyebrow">PRODUCT INFORMATION</div>
-                    <h3>{html.escape(name)}</h3>
-                    <p class="muted">Product Code: {html.escape(code)}</p>
-                    <p class="muted">Country of Origin: {html.escape(origin)}</p>
-                    <p class="muted">Category: {html.escape(category)}</p>
-                </div>
-                """, unsafe_allow_html=True)
-
-                # PDF VIEW AND DOWNLOAD
-
-                pdf_path = pdf_map.get(code)
-
-                st.markdown("#### 04 — Technical Documentation")
-
-                if pdf_path and os.path.exists(pdf_path):
-
-                    with open(pdf_path, "rb") as file:
-                        pdf_bytes = file.read()
-
-                    st.success("Original specification PDF found.")
-
-                    col1, col2 = st.columns(2)
-
-                    with col1:
-
-                        st.download_button(
-                            "Download Original PDF",
-                            data=pdf_bytes,
-                            file_name=os.path.basename(pdf_path),
-                            mime="application/pdf",
-                            use_container_width=True
-                        )
-
-                    with col2:
-
-                        if st.button(
-                            "View Original PDF",
-                            use_container_width=True
-                        ):
-                            st.session_state.show_pdf = not st.session_state.get(
-                                "show_pdf", False
-                            )
-
-                    if st.session_state.get("show_pdf", False):
-
-                        encoded_pdf = base64.b64encode(
-                            pdf_bytes
-                        ).decode("utf-8")
-
-                        pdf_html = f"""
-                        <iframe
-                            src="data:application/pdf;base64,{encoded_pdf}"
-                            width="100%"
-                            height="800"
-                            style="border:1px solid #405247;border-radius:10px"
-                            type="application/pdf">
-                        </iframe>
-                        """
-
-                        components.html(
-                            pdf_html,
-                            height=820,
-                            scrolling=True
-                        )
-
-                else:
-
-                    st.warning(
-                        "No matching PDF was found for this product."
-                    )
+</div>
+""", unsafe_allow_html=True)
