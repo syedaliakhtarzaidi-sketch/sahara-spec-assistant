@@ -44,8 +44,12 @@ html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
 .stApp { background: #081b15; color: #edf5ee; }
 [data-testid="stSidebar"] { background: #102b21; border-right: 1px solid #244537; }
 [data-testid="stSidebar"] * { color: #e8f1e9; }
-.brand { font-size:25px; font-weight:800; color:#d5ed9b; letter-spacing:1px; padding:10px 0 2px; }
-.brand-sub { color:#9bb8a5; font-size:11px; letter-spacing:3px; margin-bottom:35px; }
+.brand-logo { width:100%; max-width:225px; display:block; margin:4px auto 8px; border-radius:8px; }
+.brand-sub { color:#c9e58f; font-size:10px; letter-spacing:2px; text-align:center; margin:0 0 28px; }
+.hero-brand { display:flex; align-items:center; gap:20px; margin-bottom:22px; }
+.hero-logo { width: min(340px, 48%); height:auto; border-radius:8px; background:#fff; }
+.hero-divider { height:1px; background:#52704a; margin:18px 0; opacity:.7; }
+@media (max-width:640px) { .hero-brand { display:block; } .hero-logo { width:100%; max-width:300px; margin-bottom:16px; } }
 .hero { background:linear-gradient(115deg,#173c2c,#102a20 70%,#1d422d); border:1px solid #31543d; border-radius:22px; padding:36px; margin:12px 0 28px; }
 .hero h1 { color:#f2f7ed; font-size:42px; line-height:1.15; margin:12px 0; }
 .hero p { color:#b9cbbb; font-size:15px; max-width:700px; }
@@ -481,8 +485,8 @@ pdf_lookup = {
 }
 
 with st.sidebar:
-    st.markdown('<div class="brand">SAHARA</div>', unsafe_allow_html=True)
-    st.markdown('<div class="brand-sub">UK FOODS</div>', unsafe_allow_html=True)
+    st.image("https://i.ibb.co/j9ZyXR3R/1536x768.png", use_container_width=True)
+    st.markdown('<div class="brand-sub">EAT SAHARA LIVE HEALTHY</div>', unsafe_allow_html=True)
     st.markdown("### INTELLIGENCE")
     page = st.radio(
         "Navigation",
@@ -496,10 +500,13 @@ with st.sidebar:
 
 st.markdown("""
 <div class="hero">
+  <div class="hero-brand"><img class="hero-logo" src="https://i.ibb.co/j9ZyXR3R/1536x768.png" alt="Sahara UK Foods — Eat Sahara Live Healthy"></div>
   <span class="hero-tag">SAHARA AI INTELLIGENCE</span>
   <h1>Intelligence behind<br>every ingredient.</h1>
   <p>Your central intelligence workspace for product specifications,
   quality information, ingredient data and compliance documentation.</p>
+  <div class="hero-divider"></div>
+  <p style="margin:0; color:#d9edaa; font-size:11px; letter-spacing:2px; font-weight:700;">EAT SAHARA LIVE HEALTHY</p>
 </div>
 """, unsafe_allow_html=True)
 
