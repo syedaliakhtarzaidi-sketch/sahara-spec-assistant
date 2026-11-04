@@ -292,8 +292,8 @@ def build_structured_answer(question, pages):
 
     if kind == "microbiology":
         tests = [
-            ("Yeast & Mould", [r"yeast\s*(?:&|and)\s*mou?ld", r"yeast"]),
-            ("Total Coliforms", [r"total\s+coliform", r"coliform"]),
+            ("Yeast & Mould", [r"yeasts?\s*(?:&|and)\s*mou?lds?"]),
+            ("Total Coliforms", [r"total\s+coliforms?"]),
             ("Salmonella", [r"salmonella"]),
             ("E. coli", [r"e\.?\s*coli"]),
         ]
@@ -563,27 +563,22 @@ elif page == "AI Assistant":
                                         page_no, source_line = hit
                                         source_pages.add(page_no)
                                         label_pattern = {
-                                            "Yeast & Mould": r"yeast\s*(?:&|and)\s*mou?ld",
+                                            "Yeast & Mould": r"yeasts?\s*(?:&|and)\s*mou?lds?",
                                             "Total Coliforms": r"(?:total\s+)?coliforms?",
-                                            "Salmonella": r"salmonella",
+                                            "Salmonella": r"salmonella(?:\s+spp\.?)?",
                                             "E. coli": r"e\.?\s*coli",
                                         }[label]
-                                        match = re.search(label_pattern, source_line, re.I)
-                                        result = source_line[match.end():].strip(" \t:：-") if match else source_line
-                                        table_rows.append((label, result or source_line))
-                                    rows_html = "".join(
-                                        "<tr><td>" + html.escape(label) + "</td><td><strong>" +
-                                        html.escape(result) + "</strong></td></tr>"
-                                        for label, result in table_rows
+                                        result = re.sub(label_pattern, "", source_line, count=1, flags=re.I)
+                                        result = re.sub(r"^[\s:：()\-–]+", "", result).strip()
+                                        table_rows.append((label, result or "See source PDF"))
+                                    microbiology_df = pd.DataFrame(
+                                        table_rows,
+                                        columns=["Test Parameter", "Supplier Result"],
                                     )
-                                    st.markdown(
-                                        '<div style="border:1px solid #315442;border-radius:14px;overflow:hidden;background:#10291f;">'
-                                        '<div style="padding:13px 17px;background:#173b2b;color:#d9edaa;font-size:12px;font-weight:700;letter-spacing:1.2px;">TEST PARAMETER'
-                                        '<span style="float:right;">SUPPLIER RESULT</span></div>'
-                                        '<table style="width:100%;border-collapse:collapse;color:#edf5ee;font-size:14px;">'
-                                        + rows_html +
-                                        '</table></div>',
-                                        unsafe_allow_html=True,
+                                    st.dataframe(
+                                        microbiology_df,
+                                        hide_index=True,
+                                        use_container_width=True,
                                     )
                                     st.caption("Source PDF page(s): " + ", ".join(map(str, sorted(source_pages))))
                                 else:
