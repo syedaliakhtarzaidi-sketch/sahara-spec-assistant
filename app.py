@@ -241,7 +241,7 @@ if page == "Overview":
 elif page in ["Product Intelligence", "Specification Library"]:
     heading = "Product Intelligence" if page == "Product Intelligence" else "Specification Library"
     st.markdown(f"### {heading}")
-    st.caption("Search the live product database and open the matching original supplier PDF.")
+    st.markdown('<p style="color:#ffffff !important; opacity:1; font-weight:500;">Search the live product database and open the matching original supplier PDF.</p>', unsafe_allow_html=True)
     if products.empty:
         st.error("Product database not found or its required columns are missing. Check Product_Specs_Summary.xlsx in the repository root.")
     else:
