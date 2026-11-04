@@ -57,6 +57,12 @@ div[data-testid="stVerticalBlockBorderWrapper"] { background:#10291f; border:1px
 div.stButton > button, div.stDownloadButton > button { background:#c9e58f; color:#10291e; border:none; border-radius:9px; font-weight:700; padding:10px 18px; }
 div.stButton > button:hover, div.stDownloadButton > button:hover { background:#d9efaa; color:#10291e; }
 .stTextInput input, [data-baseweb="select"] { background:#102b21; color:#edf5e9; border:1px solid #355442; border-radius:9px; }
+/* Keep category selector text clearly visible on the dark theme */
+[data-testid="stSelectbox"] label { color:#ffffff !important; }
+[data-testid="stSelectbox"] [data-baseweb="select"] * { color:#ffffff !important; }
+[data-testid="stSelectbox"] [role="option"] { color:#ffffff !important; }
+[data-testid="stSelectbox"] [data-baseweb="select"] { background:#102b21 !important; }
+
 hr { border-color:#294737; }
 .footer { color:#789282; font-size:11px; text-align:center; padding:25px 0; }
 .muted { color:#a9c0ae; font-size:12px; }
