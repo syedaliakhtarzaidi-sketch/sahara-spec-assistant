@@ -2,8 +2,7 @@
 import streamlit as st
 
 # =========================================================
-# SAHARA UK FOODS
-# SIGNATURE INTELLIGENCE DASHBOARD
+# SAHARA UK FOODS - SIGNATURE INTELLIGENCE
 # =========================================================
 
 st.set_page_config(
@@ -13,27 +12,24 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# -------------------- PRODUCT IMAGES --------------------
+# -------------------- VERIFIED PRODUCT IMAGES --------------------
 
-# Verified Medjool dates photograph
 DATES_IMAGE = (
-    "https://commons.wikimedia.org/wiki/Special:FilePath/"
-    "DATES%20MEDJOOL.jpg"
+    "https://eat-vegan.b-cdn.net/ingredients/"
+    "medjool-datteln-entsteint-1774389719217.png?class=card"
 )
 
-# Nuts
 NUTS_IMAGE = (
-    "https://images.unsplash.com/photo-1508061253366-f7da158b6d46"
-    "?w=900&h=600&fit=crop"
+    "https://www.coville.com.tw/upload/4170/"
+    "ckeditor_images/c76623f9-3b1a-41cb-a658-5a4f24d27504.webp"
 )
 
-# Dried fruits
 DRIED_FRUITS_IMAGE = (
-    "https://images.pexels.com/photos/10111853/pexels-photo-10111853.jpeg"
+    "https://nutsultan.com/media/hero_slides/"
+    "hero_dried_fruits_JzSj4F9_6UXinW1.webp"
 )
 
-
-# -------------------- DESIGN SYSTEM --------------------
+# -------------------- DESIGN --------------------
 
 st.markdown("""
 <style>
@@ -73,12 +69,7 @@ html, body, [class*="css"] {
 }
 
 .hero {
-    background: linear-gradient(
-        115deg,
-        #173c2c,
-        #102a20 70%,
-        #1d422d
-    );
+    background: linear-gradient(115deg, #173c2c, #102a20 70%, #1d422d);
     border: 1px solid #31543d;
     border-radius: 22px;
     padding: 36px;
@@ -206,7 +197,6 @@ with st.sidebar:
     )
 
     st.markdown("---")
-
     st.caption("SAHARA UK FOODS LTD")
     st.caption("Specification Intelligence")
     st.caption("Premium Food Ingredients")
@@ -261,7 +251,7 @@ if page == "Overview":
 
     st.markdown("---")
 
-    # INGREDIENT GALLERY
+    # INGREDIENT WORLD
 
     st.markdown("### Our Ingredient World")
     st.caption(
@@ -282,11 +272,7 @@ if page == "Overview":
 
             st.markdown("**Dates**")
             st.caption(
-                "Medjool · Deglet Nour · Pitted Dates"
-            )
-
-            st.caption(
-                "Photo: ORGANIChouse · CC BY-SA 4.0"
+                "Medjool · Deglet Noor · Pitted Dates"
             )
 
     # NUTS
