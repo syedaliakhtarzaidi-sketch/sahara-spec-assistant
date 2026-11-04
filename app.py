@@ -577,10 +577,17 @@ elif page == "Product Intelligence":
             view = view[view["Category"].eq(selected_category)]
         if search.strip():
             term = search.strip()
+            # Match singular/plural product wording (e.g. Cashew and Cashews)
+            # without changing product names or hiding any database records.
+            search_pattern = re.escape(term)
+            if term.casefold().endswith("s") and len(term) > 3:
+                search_pattern = re.escape(term[:-1]) + r"s?"
+            elif len(term) > 3:
+                search_pattern = re.escape(term) + r"s?"
             mask = (
-                view["Product Code"].str.contains(term, case=False, na=False)
-                | view["Product Name"].str.contains(term, case=False, na=False)
-                | view["Country of Origin"].astype(str).str.contains(term, case=False, na=False)
+                view["Product Code"].astype(str).str.contains(re.escape(term), case=False, na=False, regex=True)
+                | view["Product Name"].astype(str).str.contains(search_pattern, case=False, na=False, regex=True)
+                | view["Country of Origin"].astype(str).str.contains(re.escape(term), case=False, na=False, regex=True)
             )
             view = view[mask]
         selected_path = st.session_state.get("selected_pdf_path")
