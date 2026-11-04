@@ -196,7 +196,7 @@ with st.sidebar:
     st.markdown("### INTELLIGENCE")
     page = st.radio(
         "Navigation",
-        ["Overview", "Product Intelligence", "Specification Library", "AI Assistant", "Compliance Centre"],
+        ["Overview", "Product Intelligence", "AI Assistant", "Compliance Centre"],
         label_visibility="collapsed",
     )
     st.markdown("---")
@@ -245,8 +245,8 @@ if page == "Overview":
                 st.markdown(f"**{name}**")
                 st.caption(description)
 
-elif page in ["Product Intelligence", "Specification Library"]:
-    heading = "Product Intelligence" if page == "Product Intelligence" else "Specification Library"
+elif page == "Product Intelligence":
+    heading = "Product Intelligence"
     st.markdown(f"### {heading}")
     st.markdown('<p style="color:#ffffff !important; opacity:1; font-weight:500;">Search the live product database and open the matching original supplier PDF.</p>', unsafe_allow_html=True)
     if products.empty:
