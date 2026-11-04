@@ -495,13 +495,19 @@ elif page == "AI Assistant":
                 f"{row['Product Code']} — {row['Product Name']} ({row['Country of Origin']})": str(row["Product Code"])
                 for _, row in available_products.iterrows()
             }
-            chosen_label = st.selectbox("Select product", list(product_options.keys()), key="assistant_product")
-            chosen_code = product_options[chosen_label]
-            chosen_pdf = pdf_lookup.get(chosen_code)
+            chosen_label = st.selectbox(
+                "Select product",
+                list(product_options.keys()),
+                index=None,
+                placeholder="Choose a product...",
+                key="assistant_product",
+            )
+            chosen_code = product_options.get(chosen_label) if chosen_label else None
+            chosen_pdf = pdf_lookup.get(chosen_code) if chosen_code else None
 
             st.markdown(
                 '<div class="metric-card"><div class="metric-label">SOURCE DOCUMENT</div>'
-                f'<div class="metric-value" style="font-size:17px">{chosen_pdf.name if chosen_pdf else "PDF not found"}</div></div>',
+                f'<div class="metric-value" style="font-size:17px">{chosen_pdf.name if chosen_pdf else "No product selected"}</div></div>',
                 unsafe_allow_html=True,
             )
 
@@ -594,8 +600,9 @@ elif page == "AI Assistant":
                                 st.caption(f"Source: Supplier PDF · Page {page_no}")
                         else:
                             st.warning("Information not found in this supplier specification.")
-            with st.expander("Open original supplier PDF"):
-                render_original_pdf(chosen_pdf)
+            if chosen_pdf:
+                with st.expander("Open original supplier PDF"):
+                    render_original_pdf(chosen_pdf)
 
 elif page == "Compliance Centre":
     st.markdown("### Compliance Centre")
