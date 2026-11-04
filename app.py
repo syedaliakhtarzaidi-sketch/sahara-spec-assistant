@@ -52,14 +52,6 @@ html, body, [class*="css"] {
     margin-bottom: 35px;
 }
 
-.eyebrow {
-    color: #b8d887;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-}
-
 .hero {
     background: linear-gradient(115deg, #173c2c, #102a20 70%, #1d422d);
     border: 1px solid #31543d;
@@ -92,19 +84,6 @@ html, body, [class*="css"] {
     letter-spacing: 2px;
 }
 
-.section-title {
-    color: #eaf3e8;
-    font-size: 23px;
-    font-weight: 700;
-    margin-top: 20px;
-}
-
-.section-subtitle {
-    color: #9eb4a5;
-    font-size: 13px;
-    margin-bottom: 20px;
-}
-
 div[data-testid="stImage"] img {
     width: 100%;
     height: 215px;
@@ -116,18 +95,6 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
     background: #10291f;
     border: 1px solid #294737;
     border-radius: 16px;
-}
-
-.product-name {
-    color: #edf5e9;
-    font-size: 17px;
-    font-weight: 700;
-    margin-top: 12px;
-}
-
-.product-info {
-    color: #a8bead;
-    font-size: 12px;
 }
 
 .metric-card {
@@ -188,8 +155,15 @@ hr {
 
 with st.sidebar:
 
-    st.markdown('<div class="brand">SAHARA</div>', unsafe_allow_html=True)
-    st.markdown('<div class="brand-sub">UK FOODS</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="brand">SAHARA</div>',
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        '<div class="brand-sub">UK FOODS</div>',
+        unsafe_allow_html=True
+    )
 
     st.markdown("### INTELLIGENCE")
 
@@ -231,10 +205,7 @@ st.markdown("""
 if page == "Overview":
 
     st.markdown("### Welcome to Sahara Intelligence")
-    st.markdown(
-        '<p class="section-subtitle">Your ingredient portfolio at a glance.</p>',
-        unsafe_allow_html=True
-    )
+    st.caption("Your ingredient portfolio at a glance.")
 
     m1, m2, m3 = st.columns(3)
 
@@ -263,72 +234,60 @@ if page == "Overview":
         """, unsafe_allow_html=True)
 
     st.markdown("---")
+
+    # INGREDIENT GALLERY
+
     st.markdown("### Our Ingredient World")
-    st.markdown(
-        '<p class="section-subtitle">Explore the products that define Sahara UK Foods.</p>',
-        unsafe_allow_html=True
+    st.caption(
+        "Explore the premium ingredients supplied by Sahara UK Foods."
     )
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns(3, gap="large")
+
+    # DATES
 
     with col1:
         with st.container(border=True):
+
             st.image(
-                "https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e?w=900&h=600&fit=crop",
+                "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=900&h=600&fit=crop",
                 use_container_width=True
             )
+
             st.markdown("**Dates**")
-            st.caption("Medjool · Deglet Nour · Pitted Dates")
+            st.caption(
+                "Medjool · Deglet Nour · Pitted Dates"
+            )
+
+    # NUTS
 
     with col2:
         with st.container(border=True):
+
             st.image(
                 "https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=900&h=600&fit=crop",
                 use_container_width=True
             )
+
             st.markdown("**Nuts**")
-            st.caption("Almonds · Cashews · Pistachios · Walnuts")
+            st.caption(
+                "Almonds · Cashews · Pistachios · Walnuts"
+            )
+
+    # DRIED FRUITS
 
     with col3:
         with st.container(border=True):
+
             st.image(
                 "https://images.pexels.com/photos/10111853/pexels-photo-10111853.jpeg",
                 use_container_width=True
             )
+
             st.markdown("**Dried Fruits**")
-            st.caption("Apricots · Raisins · Figs · Prunes")
-
-    st.markdown("---")
-    st.markdown("### Dried Fruits Collection")
-
-    f1, f2, f3 = st.columns(3)
-
-    with f1:
-        with st.container(border=True):
-            st.image(
-                "https://images.pexels.com/photos/10112100/pexels-photo-10112100.jpeg",
-                use_container_width=True
+            st.caption(
+                "Dried Apricots · Raisins · Figs · Prunes"
             )
-            st.markdown("**Dried Apricots**")
-            st.caption("Selected dried apricots")
-
-    with f2:
-        with st.container(border=True):
-            st.image(
-                "https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e?w=900&h=600&fit=crop",
-                use_container_width=True
-            )
-            st.markdown("**Raisins**")
-            st.caption("Dried grape varieties")
-
-    with f3:
-        with st.container(border=True):
-            st.image(
-                "https://images.pexels.com/photos/10111853/pexels-photo-10111853.jpeg",
-                use_container_width=True
-            )
-            st.markdown("**Figs & Prunes**")
-            st.caption("Premium dried fruit selection")
 
 
 # -------------------- PRODUCT INTELLIGENCE --------------------
@@ -376,14 +335,17 @@ elif page == "Specification Library":
     )
 
     if uploaded_files:
-        for pdf in uploaded_files:
+
+        for index, pdf in enumerate(uploaded_files):
+
             st.write(pdf.name)
+
             st.download_button(
                 "Download PDF",
                 data=pdf.getvalue(),
                 file_name=pdf.name,
                 mime="application/pdf",
-                key=pdf.name
+                key=f"download_{index}"
             )
 
     st.info(
@@ -397,21 +359,28 @@ elif page == "Specification Library":
 elif page == "AI Assistant":
 
     st.markdown("### Sahara AI Assistant")
-    st.caption("Ask questions about product specifications and quality data.")
+    st.caption(
+        "Ask questions about product specifications and quality data."
+    )
 
     question = st.text_area(
         "Your question",
-        placeholder="Example: What is the total aflatoxin value in this product?"
+        placeholder=(
+            "Example: What is the total aflatoxin value in this product?"
+        )
     )
 
     if st.button("Analyse Specification"):
 
         if question.strip():
+
             st.warning(
                 "The AI analysis engine has not yet been connected. "
                 "No specification values are being generated."
             )
+
         else:
+
             st.error("Please enter a question first.")
 
 
@@ -420,7 +389,9 @@ elif page == "AI Assistant":
 elif page == "Compliance Centre":
 
     st.markdown("### Compliance Centre")
-    st.caption("A central workspace for quality and compliance information.")
+    st.caption(
+        "A central workspace for quality and compliance information."
+    )
 
     topics = [
         "Aflatoxin",
@@ -433,7 +404,9 @@ elif page == "Compliance Centre":
     ]
 
     for topic in topics:
+
         with st.container(border=True):
+
             st.markdown(f"**{topic}**")
             st.caption("Specification data connection required.")
 
