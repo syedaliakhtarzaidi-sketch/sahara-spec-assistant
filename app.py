@@ -49,7 +49,31 @@ html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
 .hero-brand { display:flex; align-items:center; gap:20px; margin-bottom:22px; }
 .hero-logo { width: min(340px, 48%); height:auto; border-radius:8px; background:#fff; }
 .hero-divider { height:1px; background:#52704a; margin:18px 0; opacity:.7; }
-@media (max-width:640px) { .hero-brand { display:block; } .hero-logo { width:100%; max-width:300px; margin-bottom:16px; } }
+/* Logo sizing: prevent the global product-image rule from cropping brand assets */
+[data-testid="stSidebar"] [data-testid="stImage"] { display:flex; justify-content:center; margin:8px auto 4px; }
+[data-testid="stSidebar"] [data-testid="stImage"] img { width:100% !important; max-width:218px !important; height:auto !important; max-height:none !important; object-fit:contain !important; border-radius:0 !important; margin:0 auto !important; }
+.hero { text-align:center; padding:34px 42px 30px; }
+.hero-brand { display:flex; justify-content:center; align-items:center; width:100%; margin:0 auto 22px; }
+.hero-logo { display:block; width:290px !important; max-width:70% !important; height:auto !important; max-height:none !important; object-fit:contain !important; border-radius:0 !important; background:transparent; margin:0 auto; }
+.hero h1 { margin:16px auto 12px; }
+.hero p { margin-left:auto; margin-right:auto; }
+.hero-tag { margin:0 auto; }
+[data-testid="stSidebar"] [data-testid="stRadio"] { margin-top:6px; }
+[data-testid="stSidebar"] [data-testid="stRadio"] > label { color:#a9c6b0 !important; font-size:10px !important; font-weight:800 !important; letter-spacing:2px !important; text-transform:uppercase; margin-bottom:10px !important; }
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] { gap:7px !important; }
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label { width:100%; min-height:42px; box-sizing:border-box; display:flex; align-items:center; padding:9px 12px !important; margin:0 !important; border:1px solid #294737; border-radius:9px; background:#143326; transition:background .15s ease,border-color .15s ease; }
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label:hover { background:#1b3c2b; border-color:#64814f; }
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) { background:#c9e58f !important; border-color:#c9e58f !important; }
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) p { color:#10291e !important; font-weight:800 !important; }
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label p { color:#e8f1e9 !important; font-size:13px !important; font-weight:600 !important; }
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label > div:first-child { display:none !important; }
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"] { color:#91ab99 !important; }
+@media (max-width:640px) {
+  .hero { padding:26px 18px; }
+  .hero-brand { display:flex; margin-bottom:18px; }
+  .hero-logo { width:240px !important; max-width:85% !important; margin:0 auto; }
+  .hero h1 { font-size:32px; }
+}
 .hero { background:linear-gradient(115deg,#173c2c,#102a20 70%,#1d422d); border:1px solid #31543d; border-radius:22px; padding:36px; margin:12px 0 28px; }
 .hero h1 { color:#f2f7ed; font-size:42px; line-height:1.15; margin:12px 0; }
 .hero p { color:#b9cbbb; font-size:15px; max-width:700px; }
