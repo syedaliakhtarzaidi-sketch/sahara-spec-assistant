@@ -98,6 +98,13 @@ hr { border-color:#e1e5dc; }
 .muted { color:#718078; font-size:12px; }
 div[data-testid="stImage"] img { width:100%; height:215px; object-fit:cover; border-radius:12px; }
 /* Our Ingredient World: uniform, larger image frames */
+/* Keep all three Ingredient World cards the same height,
+   even when a description wraps onto a second line. */
+div[data-testid="stVerticalBlockBorderWrapper"]:has(.ingredient-image-frame) {
+    min-height: 675px !important;
+    height: 675px !important;
+    box-sizing: border-box !important;
+}
 .ingredient-image-frame {
     display: block !important;
     width: 100% !important;
