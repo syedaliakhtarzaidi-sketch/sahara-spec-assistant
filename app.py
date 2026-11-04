@@ -3,7 +3,8 @@ import streamlit as st
 
 # =========================================================
 # SAHARA UK FOODS
-# SAHARA SIGNATURE - AI INTELLIGENCE
+# PREMIUM AI INTELLIGENCE PLATFORM
+# SAHARA SIGNATURE EDITION
 # =========================================================
 
 st.set_page_config(
@@ -192,6 +193,30 @@ section[data-testid="stSidebar"] > div {
     color: var(--muted);
     font-size: 12px;
     margin-bottom: 18px;
+}
+
+/* INGREDIENT CARDS */
+
+.ingredient-card {
+    background: #17291E;
+    border: 1px solid #294332;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.ingredient-name {
+    color: #F4F5EF;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 15px 16px 5px 16px;
+}
+
+.ingredient-description {
+    color: #A1B1A3;
+    font-size: 12px;
+    line-height: 1.6;
+    padding: 0 16px 18px 16px;
 }
 
 /* WORKSPACE */
@@ -383,27 +408,87 @@ st.markdown("""
 
 if page == "AI Intelligence":
 
-    # HERO - Native HTML block with explicit HTML rendering
+    # HERO
 
     st.markdown("""
     <div class="hero">
         <div class="hero-tag">SAHARA AI INTELLIGENCE</div>
+
         <div class="hero-title">
             Intelligence behind<br>
             every ingredient.
         </div>
+
         <p class="hero-text">
             Your central workspace for product specifications,
             food quality intelligence, technical documentation
             and compliance analysis.
         </p>
+
         <div class="hero-company">
             SAHARA UK FOODS
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # WORKSPACE
+    # INGREDIENT GALLERY
+
+    st.markdown("""
+    <div class="section-heading">Our Ingredient World</div>
+    <div class="section-subtitle">
+        Quality ingredients. Trusted product knowledge.
+    </div>
+    """, unsafe_allow_html=True)
+
+    ingredients = [
+        {
+            "name": "Dates & Date Products",
+            "image": "https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e?w=900",
+            "description": "Premium dates, pitted dates and date ingredients."
+        },
+        {
+            "name": "Nuts & Kernels",
+            "image": "https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=900",
+            "description": "Almonds, pistachios, cashews and walnuts."
+        },
+        {
+            "name": "Dried Fruits",
+            "image": "https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e?w=900",
+            "description": "Apricots, figs, raisins and other dried fruits."
+        }
+    ]
+
+    image_cols = st.columns(3)
+
+    for col, item in zip(image_cols, ingredients):
+        with col:
+            st.markdown('<div class="ingredient-card">', unsafe_allow_html=True)
+
+            try:
+                st.image(
+                    item["image"],
+                    use_container_width=True
+                )
+            except Exception:
+                st.markdown(
+                    '<div style="padding:35px;text-align:center;color:#A6D936;">'
+                    'Image unavailable</div>',
+                    unsafe_allow_html=True
+                )
+
+            st.markdown(
+                f'<div class="ingredient-name">{item["name"]}</div>',
+                unsafe_allow_html=True
+            )
+
+            st.markdown(
+                f'<div class="ingredient-description">{item["description"]}</div>',
+                unsafe_allow_html=True
+            )
+
+            st.markdown('</div>', unsafe_allow_html=True)
+
+    # AI WORKSPACE
 
     st.markdown(
         '<div class="section-heading">AI Intelligence Workspace</div>',
@@ -432,13 +517,12 @@ if page == "AI Intelligence":
     if st.button("Start Analysis", key="start_analysis"):
         if question.strip():
             st.info(
-                "The design is ready. AI analysis engine integration "
-                "will be completed in the next development phase."
+                "AI analysis engine integration is planned for the next phase."
             )
         else:
             st.warning("Please enter a question first.")
 
-    # MODULES
+    # INTELLIGENCE MODULES
 
     st.markdown(
         '<div class="section-heading">Intelligence Modules</div>',
@@ -446,7 +530,9 @@ if page == "AI Intelligence":
     )
 
     st.markdown(
-        '<div class="section-subtitle">Explore the specialist intelligence areas of Sahara UK Foods.</div>',
+        '<div class="section-subtitle">'
+        'Explore the specialist intelligence areas of Sahara UK Foods.'
+        '</div>',
         unsafe_allow_html=True
     )
 
