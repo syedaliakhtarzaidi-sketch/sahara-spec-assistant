@@ -99,17 +99,23 @@ hr { border-color:#e1e5dc; }
 div[data-testid="stImage"] img { width:100%; height:215px; object-fit:cover; border-radius:12px; }
 /* Our Ingredient World: uniform, larger image frames */
 .ingredient-image-frame {
-    width: 100%;
-    height: 250px;
-    overflow: hidden;
+    display: block !important;
+    width: 100% !important;
+    height: 300px !important;
+    min-height: 300px !important;
+    overflow: hidden !important;
     border-radius: 12px;
+    line-height: 0;
+    margin: 0 0 14px 0;
 }
 .ingredient-image-frame img {
-    display: block;
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    object-position: center center;
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 300px !important;
+    min-height: 300px !important;
+    object-fit: cover !important;
+    object-position: center center !important;
     border-radius: 12px;
 }
 /* Compensate for extra whitespace in the dried-fruit source image */
@@ -531,7 +537,9 @@ if page == "Overview":
                     f'<div class="ingredient-image-frame'
                     f'{" dried-fruits-image" if name == "Dried Fruits" else ""}">'
                     f'<img src="{html.escape(image, quote=True)}" '
-                    f'alt="{html.escape(name, quote=True)}">'
+                    f'alt="{html.escape(name, quote=True)}" '
+                    f'style="display:block;width:100%;max-width:none;height:300px;'
+                    f'object-fit:cover;object-position:center;">'
                     f'</div>',
                     unsafe_allow_html=True,
                 )
