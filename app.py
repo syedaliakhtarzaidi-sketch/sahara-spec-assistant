@@ -166,6 +166,82 @@ def render_original_pdf(pdf_path):
         st.error(f"Unable to display this PDF: {error}")
 
 
+
+@st.cache_data(show_spinner=False)
+def extract_pdf_pages(pdf_path, modified_time):
+    """Extract searchable text page-by-page from the original supplier PDF."""
+    try:
+        from pypdf import PdfReader
+        reader = PdfReader(pdf_path)
+        pages = []
+        for page_number, page in enumerate(reader.pages, start=1):
+            text = page.extract_text() or ""
+            pages.append({"page": page_number, "text": text})
+        return pages, None
+    except Exception as error:
+        return [], str(error)
+
+
+def find_specification_evidence(question, pages):
+    """Return verbatim PDF lines ranked by relevance; never generate missing values."""
+    query = question.casefold()
+    aliases = {
+        "aflatoxin": ["aflatoxin", "aflatoxins"],
+        "b1": ["b1", "aflatoxin b1"],
+        "b2": ["b2", "aflatoxin b2"],
+        "g1": ["g1", "aflatoxin g1"],
+        "g2": ["g2", "aflatoxin g2"],
+        "total": ["total", "sum"],
+        "pesticide": ["pesticide", "pesticides", "residue", "residues"],
+        "microbiology": ["microbiological", "microbiology", "yeast", "mould", "mold", "salmonella", "e. coli", "coliform"],
+        "allergen": ["allergen", "allergens", "allergy"],
+        "nutrition": ["nutrition", "nutritional", "energy", "protein", "fat", "carbohydrate"],
+        "moisture": ["moisture", "water content"],
+        "so2": ["so2", "sulphur dioxide", "sulfur dioxide"],
+    }
+    search_terms = set(re.findall(r"[a-z0-9.]+", query))
+    expanded_terms = set(search_terms)
+    for key, values in aliases.items():
+        if key in query:
+            expanded_terms.update(values)
+
+    stop_words = {"what", "is", "the", "in", "for", "of", "on", "show", "find", "give", "me", "please", "product", "specification", "value", "level", "result"}
+    expanded_terms = {term for term in expanded_terms if term not in stop_words and len(term) > 1}
+    if not expanded_terms:
+        return []
+
+    evidence = []
+    for page in pages:
+        lines = [re.sub(r"\\s+", " ", line).strip() for line in page["text"].splitlines()]
+        lines = [line for line in lines if line]
+        for index, line in enumerate(lines):
+            lowered = line.casefold()
+            hits = [term for term in expanded_terms if term in lowered]
+            if not hits:
+                continue
+            score = len(hits)
+            if "aflatoxin" in query and "aflatoxin" in lowered:
+                score += 5
+            if any(term in query for term in ["b1", "b2", "g1", "g2"]) and re.search(r"\\b(b1|b2|g1|g2)\\b", lowered):
+                score += 4
+            evidence.append({
+                "page": page["page"],
+                "text": line,
+                "score": score,
+                "context": " ".join(lines[max(0, index - 1):min(len(lines), index + 2)]),
+            })
+
+    evidence.sort(key=lambda item: (-item["score"], item["page"]))
+    # Keep distinct source lines and cap output to a readable evidence set.
+    unique = []
+    seen = set()
+    for item in evidence:
+        key = (item["page"], item["text"].casefold())
+        if key not in seen:
+            unique.append(item)
+            seen.add(key)
+    return unique[:15]
+
 def category_for_product(product_name):
     name = str(product_name).casefold()
     if any(word in name for word in ["date", "deglet", "medjool", "sayer", "aseel"]):
@@ -306,8 +382,64 @@ elif page == "Product Intelligence":
 
 elif page == "AI Assistant":
     st.markdown("### Sahara AI Assistant")
-    st.caption("Evidence-based specification answers are being prepared as a separate stage.")
-    st.info("Use Product Intelligence or Specification Library to open and verify the original supplier specification PDF.")
+    st.caption("Ask questions about a product. Answers are extracted from its original supplier PDF, with page references.")
+    if products.empty:
+        st.error("Product database is unavailable. Check Product_Specs_Summary.xlsx.")
+    else:
+        available_products = products[
+            products["Product Code"].map(lambda code: pdf_lookup.get(str(code)) is not None)
+        ].copy()
+        if available_products.empty:
+            st.error("No product PDFs were found in the repository.")
+        else:
+            product_options = {
+                f"{row['Product Code']} — {row['Product Name']} ({row['Country of Origin']})": str(row["Product Code"])
+                for _, row in available_products.iterrows()
+            }
+            chosen_label = st.selectbox("Select product", list(product_options.keys()), key="assistant_product")
+            chosen_code = product_options[chosen_label]
+            chosen_pdf = pdf_lookup.get(chosen_code)
+
+            st.markdown(
+                '<div class="metric-card"><div class="metric-label">SOURCE DOCUMENT</div>'
+                f'<div class="metric-value" style="font-size:17px">{chosen_pdf.name if chosen_pdf else "PDF not found"}</div></div>',
+                unsafe_allow_html=True,
+            )
+
+            with st.form("specification_question_form"):
+                question = st.text_input(
+                    "Ask a specification question",
+                    placeholder="e.g. What are the Aflatoxin B1, B2, G1, G2 and Total values?",
+                )
+                submitted = st.form_submit_button("Find Answer", use_container_width=True)
+
+            if submitted:
+                if not question.strip():
+                    st.warning("Please enter a question.")
+                elif not chosen_pdf or not chosen_pdf.exists():
+                    st.error("The original supplier PDF could not be found for this product.")
+                else:
+                    with st.spinner("Searching the original supplier PDF..."):
+                        pages, extraction_error = extract_pdf_pages(
+                            str(chosen_pdf), chosen_pdf.stat().st_mtime
+                        )
+                    if extraction_error:
+                        st.error(f"Could not read this PDF: {extraction_error}")
+                    elif not any(page["text"].strip() for page in pages):
+                        st.warning("No searchable text was extracted. This PDF may be scanned or image-only; no values have been assumed.")
+                    else:
+                        matches = find_specification_evidence(question, pages)
+                        if matches:
+                            st.markdown("#### Evidence found in supplier specification")
+                            st.caption("The following are source excerpts, not generated or calculated values. Check the cited page in the original PDF.")
+                            for item in matches:
+                                with st.container(border=True):
+                                    st.markdown(f"**PDF page {item['page']}**")
+                                    st.write(item["context"])
+                        else:
+                            st.warning("Not found in the searchable text of this supplier PDF. No value has been assumed.")
+            with st.expander("Open original supplier PDF"):
+                render_original_pdf(chosen_pdf)
 
 elif page == "Compliance Centre":
     st.markdown("### Compliance Centre")
