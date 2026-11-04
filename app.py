@@ -97,24 +97,24 @@ hr { border-color:#e1e5dc; }
 .footer { color:#829087; font-size:9px; font-weight:700; letter-spacing:1.8px; text-align:center; padding:30px 0 12px; }
 .muted { color:#718078; font-size:12px; }
 div[data-testid="stImage"] img { width:100%; height:215px; object-fit:cover; border-radius:12px; }
-/* Our Ingredient World: consistent image frames */
+/* Our Ingredient World: uniform, larger image frames */
 .ingredient-image-frame {
     width: 100%;
-    height: 215px;
+    height: 250px;
     overflow: hidden;
     border-radius: 12px;
 }
 .ingredient-image-frame img {
     display: block;
     width: 100%;
-    height: 215px;
+    height: 250px;
     object-fit: cover;
     object-position: center center;
     border-radius: 12px;
 }
-/* Dried-fruit source image has extra whitespace; zoom its contents */
+/* Compensate for extra whitespace in the dried-fruit source image */
 .ingredient-image-frame.dried-fruits-image img {
-    transform: scale(1.28);
+    transform: scale(1.45);
 }
 .answer-heading { padding:4px 0 18px; border-bottom:1px solid #e5e7df; margin-bottom:16px; }
 .answer-kicker { color:#a18148; font-size:9px; font-weight:800; letter-spacing:2px; margin-bottom:7px; }
