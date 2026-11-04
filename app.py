@@ -55,8 +55,9 @@ div[data-testid="stVerticalBlockBorderWrapper"] { background:#10291f; border:1px
 .metric-card { background:#102b21; border:1px solid #294737; border-radius:14px; padding:18px; }
 .metric-label { color:#9db5a4; font-size:12px; }
 .metric-value { color:#d9edaa; font-size:25px; font-weight:800; margin-top:5px; }
-div.stButton > button, div.stDownloadButton > button { background:#c9e58f; color:#10291e; border:none; border-radius:9px; font-weight:700; padding:10px 18px; }
-div.stButton > button:hover, div.stDownloadButton > button:hover { background:#d9efaa; color:#10291e; }
+div.stButton > button, div.stDownloadButton > button, [data-testid="stFormSubmitButton"] button { background:#c9e58f !important; color:#10291e !important; border:1px solid #c9e58f !important; border-radius:9px !important; font-weight:700 !important; padding:10px 18px !important; }
+div.stButton > button:hover, div.stDownloadButton > button:hover, [data-testid="stFormSubmitButton"] button:hover { background:#d9efaa !important; color:#10291e !important; border-color:#d9efaa !important; }
+[data-testid="stFormSubmitButton"] button p { color:#10291e !important; font-weight:700 !important; }
 .stTextInput input, [data-baseweb="select"] { background:#102b21; color:#edf5e9; border:1px solid #355442; border-radius:9px; }
 /* Search field label and placeholder visibility */
 [data-testid="stTextInput"] label,
@@ -259,6 +260,8 @@ def classify_spec_question(question):
         return "microbiology"
     if any(x in q for x in ["nutrition", "nutritional", "energy", "protein", "carbohydrate", "fat"]):
         return "nutrition"
+    if any(x in q for x in ["water activity", "water-activity", "aw value", " aw "]):
+        return "water_activity"
     if any(x in q for x in ["moisture", "water content"]):
         return "moisture"
     if any(x in q for x in ["sulphur dioxide", "sulfur dioxide", "so2"]):
@@ -327,6 +330,7 @@ def build_structured_answer(question, pages):
         "pesticide": [r"\bpesticide", r"\bresidue"],
         "microbiology": [r"\bmicrobiolog", r"\bsalmonella\b", r"\byeast\b", r"\bmould\b", r"\bmold\b", r"\be\.?\s*coli\b", r"\bcoliform"],
         "nutrition": [r"\bnutrition", r"\benergy\b", r"\bprotein\b", r"\bcarbohydrate\b", r"\bfat\b"],
+        "water_activity": [r"water\s*activity", r"\baw\b"],
         "moisture": [r"\bmoisture\b", r"\bwater content\b"],
         "so2": [r"\bso2\b", r"\bsulphur dioxide\b", r"\bsulfur dioxide\b"],
         "storage": [r"\bshelf life\b", r"\bbest before\b", r"\bstorage\b"],
@@ -534,72 +538,64 @@ elif page == "AI Assistant":
                         st.warning("No searchable text was extracted. This PDF may be scanned or image-only; no values have been assumed.")
                     else:
                         answer = build_structured_answer(question, pages)
-                        if answer["kind"] == "aflatoxin":
-                            st.markdown("#### Aflatoxin analysis")
-                            st.caption("Only values explicitly stated in the supplier PDF are shown. Missing values are not estimated.")
-                            rows = []
-                            source_pages = set()
-                            for label, hit in answer["rows"]:
-                                if hit:
-                                    page_no, source_line = hit
-                                    source_pages.add(page_no)
-                                    rows.append({"Parameter": label, "Supplier result": source_line})
-                                else:
-                                    rows.append({"Parameter": label, "Supplier result": "Not found in specification"})
-                            st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
-                            if source_pages:
-                                st.caption("Source PDF page(s): " + ", ".join(map(str, sorted(source_pages))))
-                            else:
-                                st.warning("No aflatoxin result was found in the searchable text of this PDF.")
-                        elif answer["kind"] == "ingredients":
-                            st.markdown("#### Ingredients")
-                            if answer.get("hits"):
-                                for page_no, source_line in answer["hits"][:3]:
-                                    cleaned = re.sub(r"^.*?ingredients?\s*", "", source_line, flags=re.I).strip(" :-")
-                                    st.markdown(f"- {cleaned or source_line}")
-                                    st.caption(f"Source: supplier PDF · Page {page_no}")
-                            else:
-                                st.warning("Ingredients are not stated in the searchable text of this specification.")
-                        elif answer["kind"] == "microbiology":
-                            if answer.get("rows"):
-                                st.markdown("#### Microbiological Properties")
-                                table_rows = []
+                        with st.container(border=True):
+                            st.markdown("#### Specification Answer")
+                            if answer["kind"] == "aflatoxin":
+                                rows = []
                                 source_pages = set()
                                 for label, hit in answer["rows"]:
-                                    page_no, source_line = hit
-                                    source_pages.add(page_no)
-                                    label_pattern = {
-                                        "Yeast & Mould": r"yeast\s*(?:&|and)\s*mou?ld",
-                                        "Total Coliforms": r"(?:total\s+)?coliforms?",
-                                        "Salmonella": r"salmonella",
-                                        "E. coli": r"e\.?\s*coli",
-                                    }[label]
-                                    match = re.search(label_pattern, source_line, re.I)
-                                    result = source_line[match.end():].strip(" \t:：-") if match else source_line
-                                    table_rows.append((label, result or source_line))
-                                rows_html = "".join(
-                                    "<tr><td>" + html.escape(label) + "</td><td><strong>" +
-                                    html.escape(result) + "</strong></td></tr>"
-                                    for label, result in table_rows
-                                )
-                                st.markdown(
-                                    '<div style="border:1px solid #315442;border-radius:14px;overflow:hidden;background:#10291f;">'
-                                    '<div style="padding:13px 17px;background:#173b2b;color:#d9edaa;font-size:12px;font-weight:700;letter-spacing:1.2px;">TEST PARAMETER'
-                                    '<span style="float:right;">SUPPLIER RESULT</span></div>'
-                                    '<table style="width:100%;border-collapse:collapse;color:#edf5ee;font-size:14px;">'
-                                    + rows_html +
-                                    '</table></div>',
-                                    unsafe_allow_html=True,
-                                )
-                                st.caption("Source: Supplier PDF · Page " + ", ".join(map(str, sorted(source_pages))))
+                                    if hit:
+                                        page_no, source_line = hit
+                                        source_pages.add(page_no)
+                                        rows.append({"Parameter": label, "Supplier result": source_line})
+                                    else:
+                                        rows.append({"Parameter": label, "Supplier result": "Not found in specification"})
+                                st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+                                if source_pages:
+                                    st.caption("Source PDF page(s): " + ", ".join(map(str, sorted(source_pages))))
+                                else:
+                                    st.warning("No aflatoxin result was found in the searchable text of this PDF.")
+                            elif answer["kind"] == "microbiology":
+                                if answer.get("rows"):
+                                    table_rows = []
+                                    source_pages = set()
+                                    for label, hit in answer["rows"]:
+                                        page_no, source_line = hit
+                                        source_pages.add(page_no)
+                                        label_pattern = {
+                                            "Yeast & Mould": r"yeast\\s*(?:&|and)\\s*mou?ld",
+                                            "Total Coliforms": r"(?:total\\s+)?coliforms?",
+                                            "Salmonella": r"salmonella",
+                                            "E. coli": r"e\\.?\\s*coli",
+                                        }[label]
+                                        match = re.search(label_pattern, source_line, re.I)
+                                        result = source_line[match.end():].strip(" \\t:：-") if match else source_line
+                                        table_rows.append((label, result or source_line))
+                                    rows_html = "".join(
+                                        "<tr><td>" + html.escape(label) + "</td><td><strong>" +
+                                        html.escape(result) + "</strong></td></tr>"
+                                        for label, result in table_rows
+                                    )
+                                    st.markdown(
+                                        '<div style="border:1px solid #315442;border-radius:14px;overflow:hidden;background:#10291f;">'
+                                        '<div style="padding:13px 17px;background:#173b2b;color:#d9edaa;font-size:12px;font-weight:700;letter-spacing:1.2px;">TEST PARAMETER'
+                                        '<span style="float:right;">SUPPLIER RESULT</span></div>'
+                                        '<table style="width:100%;border-collapse:collapse;color:#edf5ee;font-size:14px;">'
+                                        + rows_html +
+                                        '</table></div>',
+                                        unsafe_allow_html=True,
+                                    )
+                                    st.caption("Source PDF page(s): " + ", ".join(map(str, sorted(source_pages))))
+                                else:
+                                    st.warning("Microbiological results not found in this specification.")
+                            elif answer.get("hits"):
+                                result_rows = [
+                                    {"Supplier information": source_line, "PDF page": page_no}
+                                    for page_no, source_line in answer["hits"][:5]
+                                ]
+                                st.dataframe(pd.DataFrame(result_rows), hide_index=True, use_container_width=True)
                             else:
-                                st.warning("Microbiological results not found in this specification.")
-                        elif answer.get("hits"):
-                            for page_no, source_line in answer["hits"]:
-                                st.write(source_line)
-                                st.caption(f"Source: Supplier PDF · Page {page_no}")
-                        else:
-                            st.warning("Information not found in this supplier specification.")
+                                st.warning("Information not found in this supplier specification.")
             if chosen_pdf:
                 with st.expander("Open original supplier PDF"):
                     render_original_pdf(chosen_pdf)
