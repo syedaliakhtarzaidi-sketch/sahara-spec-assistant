@@ -484,6 +484,37 @@ def category_for_product(product_name):
 
 products = load_products()
 pdf_files = discover_pdfs()
+
+# Add supplier PDFs that are not yet represented in the Excel product register.
+# The known excluded code remains excluded intentionally.
+known_codes = set(products["Product Code"].astype(str).str.strip().str.upper())
+missing_pdf_records = []
+for pdf_path in pdf_files:
+    code_match = re.search(r"(SUFL\\s*\\d+)", pdf_path.stem, re.IGNORECASE)
+    if not code_match:
+        continue
+    code = code_match.group(1).replace(" ", "").upper()
+    if code in known_codes or code in EXCLUDED_CODES:
+        continue
+    product_name = re.sub(
+        r"^SUFL\\s*\\d+\\s*[-–—_.,()]*\\s*",
+        "",
+        pdf_path.stem,
+        flags=re.IGNORECASE,
+    ).strip()
+    missing_pdf_records.append({
+        "Product Code": code,
+        "Product Name": product_name or pdf_path.stem,
+        "Country of Origin": "Not specified",
+    })
+    known_codes.add(code)
+
+if missing_pdf_records:
+    products = pd.concat(
+        [products, pd.DataFrame(missing_pdf_records)],
+        ignore_index=True,
+    ).sort_values("Product Name", kind="stable").reset_index(drop=True)
+
 pdf_lookup = {
     str(row["Product Code"]): find_product_pdf(row["Product Code"], pdf_files)
     for _, row in products.iterrows()
