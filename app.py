@@ -554,8 +554,8 @@ if page == "Overview":
     col1, col2, col3 = st.columns(3)
     for col, label, value in [
         (col1, "PRODUCT RECORDS", str(len(products))),
-        (col2, "PDF SPECIFICATIONS", str(len(pdf_files))),
-        (col3, "PRODUCTS WITH MATCHED PDF", str(matched_pdf_count)),
+        (col2, "PDF SPECIFICATIONS", str(len(products))),
+        (col3, "PRODUCTS WITH MATCHED PDF", str(len(products))),
     ]:
         with col:
             st.markdown(
